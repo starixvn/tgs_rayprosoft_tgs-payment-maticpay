@@ -1,0 +1,61 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31205.134
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{89132E86-BF37-4555-AD8B-B661485F3926}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+		NuGet.config = NuGet.config
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MaticPay.Repositories", "MaticPay.Repositories\MaticPay.Repositories.csproj", "{D3B3C8EF-08BD-451B-A26A-DBDD2A5C5C51}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MaticPayTest", "MaticPayTest\MaticPayTest.csproj", "{03A808DD-1A45-4660-A60E-37AE6D1CF17C}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tgs.Payment.MaticPay", "Tgs.Payment.MaticPay\Tgs.Payment.MaticPay.csproj", "{A692C61A-3A78-4EC2-B54E-A36F6EF6D257}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tgs.Payment.MaticPay.Client", "Tgs.Payment.MaticPay.Client\Tgs.Payment.MaticPay.Client.csproj", "{E84F241C-2BB8-483A-83AD-CF8CF88A2426}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tgs.Payment.MaticPay.Tests", "Tgs.Payment.MaticPay.Tests\Tgs.Payment.MaticPay.Tests.csproj", "{6DD406C9-91F2-4F62-BA3F-C72CDC5D4EEB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MaticPay.Core", "MaticPay.Core\MaticPay.Core.csproj", "{966B9CAA-1EEE-4956-B7B0-693E23215B13}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D3B3C8EF-08BD-451B-A26A-DBDD2A5C5C51}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D3B3C8EF-08BD-451B-A26A-DBDD2A5C5C51}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D3B3C8EF-08BD-451B-A26A-DBDD2A5C5C51}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D3B3C8EF-08BD-451B-A26A-DBDD2A5C5C51}.Release|Any CPU.Build.0 = Release|Any CPU
+		{03A808DD-1A45-4660-A60E-37AE6D1CF17C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{03A808DD-1A45-4660-A60E-37AE6D1CF17C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{03A808DD-1A45-4660-A60E-37AE6D1CF17C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{03A808DD-1A45-4660-A60E-37AE6D1CF17C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A692C61A-3A78-4EC2-B54E-A36F6EF6D257}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A692C61A-3A78-4EC2-B54E-A36F6EF6D257}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A692C61A-3A78-4EC2-B54E-A36F6EF6D257}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A692C61A-3A78-4EC2-B54E-A36F6EF6D257}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E84F241C-2BB8-483A-83AD-CF8CF88A2426}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E84F241C-2BB8-483A-83AD-CF8CF88A2426}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E84F241C-2BB8-483A-83AD-CF8CF88A2426}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E84F241C-2BB8-483A-83AD-CF8CF88A2426}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6DD406C9-91F2-4F62-BA3F-C72CDC5D4EEB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6DD406C9-91F2-4F62-BA3F-C72CDC5D4EEB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6DD406C9-91F2-4F62-BA3F-C72CDC5D4EEB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6DD406C9-91F2-4F62-BA3F-C72CDC5D4EEB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{966B9CAA-1EEE-4956-B7B0-693E23215B13}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{966B9CAA-1EEE-4956-B7B0-693E23215B13}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{966B9CAA-1EEE-4956-B7B0-693E23215B13}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{966B9CAA-1EEE-4956-B7B0-693E23215B13}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {D5CDDD40-098B-44D5-B89F-1BE7CA501F93}
+	EndGlobalSection
+EndGlobal
