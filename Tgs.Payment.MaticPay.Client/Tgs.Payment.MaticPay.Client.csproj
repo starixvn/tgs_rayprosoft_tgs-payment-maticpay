@@ -4,6 +4,9 @@
     <TargetFramework>net5.0</TargetFramework>
     <RootNamespace>Tgs.Payment.MaticPay</RootNamespace>
     <Nullable>enable</Nullable>
+    <Version>0.0.1</Version>
+    <Authors>Raypro</Authors>
+    <Company>RayproRaypro</Company>
   </PropertyGroup>
 
 </Project>
