@@ -43,7 +43,8 @@ namespace Tgs.Payment.MaticPay
                 .Select(p => new KeyValuePair<string?, string?>(p.Key, p.Value?.ToString()));
 
             var content = new FormUrlEncodedContent(paramDict);
-            //content.Headers.ContentType = new MediaTypeHeaderValue("application/x-www-form-urlencoded");
+
+            _logger.LogInformation($"Deposit Content:{JsonSerializer.Serialize(paramDict, _jsonSerializerOptions)}");
 
             var response = await _httpClient
                 .PostAsync("/api/pay/V2", content)

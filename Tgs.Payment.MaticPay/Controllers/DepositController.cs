@@ -25,14 +25,15 @@ namespace Tgs.Payment.MaticPay.Controllers
         }
 
         [HttpPost("callback")]
-        [Produces("text/plain")]
+        //[Produces("text/plain")]
         public async Task<string> DepositCallback(
-           [FromServices] IGetService<GetDepositFormQuery, DepositFormInfo> getDepositFormService,
-           [FromServices] ICommandService<SaveDepositReturnCommand> saveReturnService,
-           [FromServices] ICommandService<ApproveDepositFormCommand> approveService,
-           [FromForm] CallbackDepositViewModel request,
+           //[FromServices] IGetService<GetDepositFormQuery, DepositFormInfo> getDepositFormService,
+           //[FromServices] ICommandService<SaveDepositReturnCommand> saveReturnService,
+           //[FromServices] ICommandService<ApproveDepositFormCommand> approveService,
+           //[FromForm] CallbackDepositViewModel request,
            [FromForm] IFormCollection formCollection)
         {
+            //Console.WriteLine(request);
             if (_logger.IsEnabled(LogLevel.Information))
             {
                 var formData = string.Join(", ", formCollection.Select(item => $"{item.Key}:{item.Value}"));
@@ -42,44 +43,48 @@ namespace Tgs.Payment.MaticPay.Controllers
                     $"{formData}");
             }
 
-            var depositForm = await getDepositFormService
-                .GetAsync(new GetDepositFormQuery(request.OrderNo))
-                .ConfigureAwait(false);
+            //var depositForm = await getDepositFormService
+            //    .GetAsync(new GetDepositFormQuery(request.OrderNo))
+            //    .ConfigureAwait(false);
 
-            if (depositForm.Status < 1000)
-            {
-                var callbackMessage = new MaticPayDepositReturn()
-                {
-                    OrderNo = request.OrderNo,
-                    OrderAmt = request.OrderAmt,
-                    BizAmt = request.BizAmt,
-                    Status = request.Status,
-                    Remark = request.Remark,
-                    Version = request.Version,
-                    Date = request.Date,
-                    Notes = request.Notes,
-                    Sign = request.Sign
-                };
+            //if (depositForm.Status < 1000)
+            //{
+            //    var callbackMessage = new MaticPayDepositReturn()
+            //    {
+            //        OrderNo = request.OrderNo,
+            //        OrderAmt = request.OrderAmt,
+            //        BizAmt = request.BizAmt,
+            //        Status = request.Status,
+            //        Remark = request.Remark,
+            //        Version = request.Version,
+            //        Date = request.Date,
+            //        Notes = request.Notes,
+            //        Sign = request.Sign
+            //    };
 
-                await saveReturnService
-                    .ExecuteAsync(new SaveDepositReturnCommand(depositForm.Id, callbackMessage))
-                    .ConfigureAwait(false);
+            //    await saveReturnService
+            //        .ExecuteAsync(new SaveDepositReturnCommand(depositForm.Id, callbackMessage))
+            //        .ConfigureAwait(false);
 
-                var jsonSerializerOptions = new JsonSerializerOptions
-                {
-                    DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault,
-                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-                };
+            //    var jsonSerializerOptions = new JsonSerializerOptions
+            //    {
+            //        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault,
+            //        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            //    };
 
-                _logger.LogInformation(JsonSerializer.Serialize(callbackMessage, jsonSerializerOptions));
+            //    _logger.LogInformation(JsonSerializer.Serialize(callbackMessage, jsonSerializerOptions));
 
-                await approveService
-                    .ExecuteAsync(new ApproveDepositFormCommand(depositForm.Id, depositForm.BrandId))
-                    .ConfigureAwait(false);
-            }
+            //    await approveService
+            //        .ExecuteAsync(new ApproveDepositFormCommand(depositForm.Id, depositForm.BrandId))
+            //        .ConfigureAwait(false);
+            //}
 
-            _logger.LogInformation("callback executed");
-            return "SUCCESS";
+            //_logger.LogInformation("callback executed");
+            //return "SUCCESS";
+
+            return await Task.FromResult("SUCCESS");
+            //return await Task.FromResult("Failed");
+            //return "SUCCESS";
         }
     }
 }

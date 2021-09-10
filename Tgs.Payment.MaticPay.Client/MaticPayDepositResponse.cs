@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
+﻿using System.Text.Json.Serialization;
 
 namespace Tgs.Payment.MaticPay
 {
@@ -15,14 +10,17 @@ namespace Tgs.Payment.MaticPay
         /// </summary>
         [JsonPropertyName("code")]
         public string Code { get; init; } = default!;
+
         /// <summary>
         /// 錯誤訊息
         /// </summary>
         [JsonPropertyName("msg")]
         public string Msg { get; init; } = default!;
+
         [JsonPropertyName("detail")]
-        public MaticDepositResponseDetail Detail { get; init; } = default!;
+        public MaticDepositResponseDetail? Detail { get; init; }
+
         [JsonPropertyName("checkstandInfo")]
-        public MaticDepositRepsonseCheckStandInfo CheckStandInfo { get; init; } = default!;
+        public MaticDepositRepsonseCheckStandInfo? CheckStandInfo { get; init; }
     }
 }
