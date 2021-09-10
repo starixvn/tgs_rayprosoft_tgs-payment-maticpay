@@ -77,7 +77,7 @@ namespace Tgs.Payment.MaticPay
         /// 會員名稱
         /// </summary>
         [JsonPropertyName("customName")]
-        public string? CustomName { get; init; }
+        public string CustomName { get; init; } = default!;
         /// <summary>
         /// 卡類型
         /// Alipay : 支付寶支付頁 ( 沒有重新提交按鈕 ) 

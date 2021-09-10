@@ -18,6 +18,7 @@ namespace Tgs.Payment.MaticPay
         public string ComputeHash(string apiKey, IDictionary<string, object> dict)
         {
             dict = dict
+                .Where(x=> x.Value != null)
                 .Select(x => x)
                 .OrderBy(x => x.Key)
                 .ToDictionary(x => x.Key, x => x.Value);

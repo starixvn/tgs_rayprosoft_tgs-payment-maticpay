@@ -34,7 +34,7 @@ namespace Tgs.Payment.MaticPay.MessageQueue
                 Version = "V2",
                 SignType = "MD5",
                 MerchantNo = settings.MerchantNo,
-                Date = DateTime.Now.ToString("YYYYMMDDhhmmss"),
+                Date = DateTime.Now.ToString("yyyyMMddhhmmss"),
                 ChannleType = "0",
                 OrderNo = settings.OrderNo,
                 BizAmt = decimal.Parse(request.Amount),

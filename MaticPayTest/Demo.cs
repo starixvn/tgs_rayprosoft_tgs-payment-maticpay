@@ -31,16 +31,19 @@ namespace MaticPayTest
             var merchantNo = "API7313181217337047";
             var apiKey = "68199f7df5e142c69ae2516b75c176d5";
             var orderNo = Guid.NewGuid();
+            var amount = 500;
+            var customName = "實名制";
             var depositSettings = new MaticPayDepositSettings(
                 merchantNo,
                 apiKey,
                 orderNo,
-                100m);
+                amount,
+                customName);
             try
             {
                 var depositReturn = await _paymentClient.DepositAsync(
                     "tgs.payment.maticpay.deposit",
-                    100,
+                    amount,
                     _maticPaySerializer.Serialize(depositSettings));
                 _logger.LogInformation($"Deposit Return:", depositReturn);
             }
