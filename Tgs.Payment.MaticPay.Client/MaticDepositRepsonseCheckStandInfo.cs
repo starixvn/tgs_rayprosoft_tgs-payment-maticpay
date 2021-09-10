@@ -34,6 +34,6 @@ namespace Tgs.Payment.MaticPay
         /// 金額
         /// </summary>
         [JsonPropertyName("money")]
-        public decimal Money { get; init; }
+        public string Money { get; init; } = default!;
     }
 }
