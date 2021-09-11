@@ -36,7 +36,7 @@ namespace Tgs.Payment.MaticPay.MessageQueue
                 MerchantNo = settings.MerchantNo,
                 Date = DateTime.Now.ToString("yyyyMMddhhmmss"),
                 ChannleType = "0",
-                OrderNo = settings.OrderNo,
+                OrderNo = settings.OrderNo.ToString(),
                 BizAmt = decimal.Parse(request.Amount),
                 AccountName = settings.AccountName,
                 BankCode = settings.BankCode,
