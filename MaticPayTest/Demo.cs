@@ -63,17 +63,19 @@ namespace MaticPayTest
             var bankCode = "ABC";
             var bankBranchName = "农业银行";
             var cardNo = "112233445566";
+            var amount = 500;
+
             var withdrawSettings = new MaticPayWithdrawSettings(
                 merchantNo,
                 apiKey,
                 orderNo,
+                amount,
                 accountName,
                 bankCode,
                 bankBranchName,
-                cardNo);                
+                cardNo);
             try
             {
-                var amount = 500;
                 var withdrawReturn = await _paymentClient.WithdrawAsync(
                     "tgs.payment.maticpay.withdraw",
                     amount,
@@ -85,6 +87,5 @@ namespace MaticPayTest
                 _logger.LogDebug(ex.Message);
             }
         }
-
     }
 }
