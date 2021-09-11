@@ -1,9 +1,11 @@
-﻿namespace Tgs.Payment.MaticPay
+﻿using System;
+
+namespace Tgs.Payment.MaticPay
 {
     public record MaticPayWithdrawSettings(
         string MerchantNo,
         string ApiKey,
-        string OrderNo,
+        Guid OrderNo,
         string AccountName,
         string BankCode,
         string BankBranchName,

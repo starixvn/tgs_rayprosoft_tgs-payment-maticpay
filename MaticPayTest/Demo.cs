@@ -24,6 +24,7 @@ namespace MaticPayTest
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             await DepoistAsync();
+            //await WithdrawAsync();
         }
 
         private async Task DepoistAsync()
@@ -45,12 +46,45 @@ namespace MaticPayTest
                     "tgs.payment.maticpay.deposit",
                     amount,
                     _maticPaySerializer.Serialize(depositSettings));
-                _logger.LogInformation($"Deposit Return:", depositReturn);
+                _logger.LogInformation($"Deposit Return: {depositReturn}");
             }
             catch (Exception ex)
             {
                 _logger.LogDebug(ex.Message);
             }
         }
+
+        private async Task WithdrawAsync()
+        {
+            var merchantNo = "API7313181217337047";
+            var apiKey = "68199f7df5e142c69ae2516b75c176d5";
+            var orderNo = Guid.NewGuid();
+            var accountName = "accountName";
+            var bankCode = "ABC";
+            var bankBranchName = "农业银行";
+            var cardNo = "112233445566";
+            var withdrawSettings = new MaticPayWithdrawSettings(
+                merchantNo,
+                apiKey,
+                orderNo,
+                accountName,
+                bankCode,
+                bankBranchName,
+                cardNo);                
+            try
+            {
+                var amount = 500;
+                var withdrawReturn = await _paymentClient.WithdrawAsync(
+                    "tgs.payment.maticpay.withdraw",
+                    amount,
+                    _maticPaySerializer.Serialize(withdrawSettings));
+                _logger.LogInformation($"Withdraw Return: {withdrawReturn}");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogDebug(ex.Message);
+            }
+        }
+
     }
 }
