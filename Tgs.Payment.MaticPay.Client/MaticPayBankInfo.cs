@@ -1,6 +1,8 @@
 ﻿namespace Tgs.Payment.MaticPay
 {
     public record MaticPayBankInfo(
-        string AccountName,
-        string CardNo);
+        string BankName,
+        string BankAccount,
+        string Name,
+        string BankBranch);
 }
