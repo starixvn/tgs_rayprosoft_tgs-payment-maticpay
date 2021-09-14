@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -25,21 +23,17 @@ namespace Tgs.Payment.MaticPay.Controllers
         }
 
         [HttpPost("callback")]
-        [Produces("text/plain")]
         public async Task<string> WithdrawCallback(
             [FromServices] IOptions<JsonOptions> jsonOptionsAccessor,
             [FromServices] IGetService<GetWithdrawFormQuery, WithdrawFormInfo> getWithdrawFormService,
             [FromServices] ICommandService<SaveWithdrawReturnCommand> saveReturnService,
-            [FromForm] CallbackWithdrawViewModel request,
-            [FromForm] IFormCollection formCollection)
+            [FromBody] CallbackWithdrawViewModel request)
         {
             if (_logger.IsEnabled(LogLevel.Information))
             {
-                var formData = string.Join(", ", formCollection.Select(item => $"{item.Key}:{item.Value}"));
-
                 _logger.LogInformation(
                     $"Callback execute, request: " +
-                    $"{formData}");
+                    $"{JsonSerializer.Serialize(request)}");
             }
             var jsonSerializerOptions = jsonOptionsAccessor.Value.JsonSerializerOptions;
 
