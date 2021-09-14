@@ -20,7 +20,6 @@ namespace MaticPayTest
                    });
                    services.AddPaymentClient();
                    services
-                       //.AddSystemJsonSerializer()
                        .AddSingleton<MaticPaySerializer>();
                    services.AddHostedService<Demo>();
                });

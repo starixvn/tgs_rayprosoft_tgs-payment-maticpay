@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Google.Protobuf;
@@ -43,7 +40,7 @@ namespace Tgs.Payment.MaticPay.MessageQueue
                 OrderNo = settings.OrderNo.ToString(),
                 BizAmt = decimal.Parse(request.Amount),
                 CustomName = settings.CustomName
-            };            
+            };
 
             var depositResponse = await _maticPayClient
                 .DepositAsync(settings.MerchantNo, settings.ApiKey, order)
@@ -86,7 +83,6 @@ namespace Tgs.Payment.MaticPay.MessageQueue
 
                 return msg.ToByteArray();
             }
-
         }
     }
 }
