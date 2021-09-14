@@ -64,6 +64,7 @@ namespace Tgs.Payment.MaticPay.MessageQueue
             {
                 var response = new MaticPayWithdrawFailResponse
                 {
+                    Code = withdrawResponse!.Code,
                     Msg = withdrawResponse!.Msg
                 };
 

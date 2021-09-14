@@ -23,6 +23,7 @@ namespace Tgs.Payment.MaticPay.Controllers
         }
 
         [HttpPost("callback")]
+        [Produces("text/plain")]
         public async Task<string> DepositCallback(
            [FromServices] IGetService<GetDepositFormQuery, DepositFormInfo> getDepositFormService,
            [FromServices] ICommandService<SaveDepositReturnCommand> saveReturnService,

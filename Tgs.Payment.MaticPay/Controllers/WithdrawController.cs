@@ -23,6 +23,7 @@ namespace Tgs.Payment.MaticPay.Controllers
         }
 
         [HttpPost("callback")]
+        [Produces("text/plain")]
         public async Task<string> WithdrawCallback(
             [FromServices] IOptions<JsonOptions> jsonOptionsAccessor,
             [FromServices] IGetService<GetWithdrawFormQuery, WithdrawFormInfo> getWithdrawFormService,
