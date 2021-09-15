@@ -23,7 +23,7 @@ connectionStrings:
 nats: nats://localhost:4222
 
 paymentApiUrl: https://mgp-pay.com:8443/
-callbackBaseUrl: https://dev.payment.tgsdev.gq/matic-test
+callbackBaseUrl: https://dev.payment.tgsdev.gq/maticpay
 
 podAnnotations: {}
 
