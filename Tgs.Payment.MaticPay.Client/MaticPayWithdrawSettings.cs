@@ -10,5 +10,6 @@ namespace Tgs.Payment.MaticPay
         string AccountName,
         string BankCode,
         string BankBranchName,
-        string CardNo);
+        string CardNo,
+        string BankName);
 }
