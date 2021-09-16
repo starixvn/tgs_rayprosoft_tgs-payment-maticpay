@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Google.Protobuf;
@@ -37,11 +34,12 @@ namespace Tgs.Payment.MaticPay.MessageQueue
                 Version = "V2",
                 SignType = "MD5",
                 MerchantNo = settings.MerchantNo,
-                Date = DateTime.Now.ToString("YYYYMMDDhhmmss"),
+                Date = DateTime.Now.ToString("yyyyMMddhhmmss"),
                 ChannleType = "0",
                 NoticeUrl = $"{_options.CallbackBaseUrl}/deposit/callback",
                 OrderNo = settings.OrderNo.ToString(),
-                BizAmt = decimal.Parse(request.Amount)                
+                BizAmt = decimal.Parse(request.Amount),
+                CustomName = settings.CustomName
             };
 
             var depositResponse = await _maticPayClient
@@ -85,7 +83,6 @@ namespace Tgs.Payment.MaticPay.MessageQueue
 
                 return msg.ToByteArray();
             }
-
         }
     }
 }

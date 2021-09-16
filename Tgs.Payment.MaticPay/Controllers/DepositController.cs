@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Tgs.Payment.MaticPay.Services;
@@ -30,16 +28,13 @@ namespace Tgs.Payment.MaticPay.Controllers
            [FromServices] IGetService<GetDepositFormQuery, DepositFormInfo> getDepositFormService,
            [FromServices] ICommandService<SaveDepositReturnCommand> saveReturnService,
            [FromServices] ICommandService<ApproveDepositFormCommand> approveService,
-           [FromForm] CallbackDepositViewModel request,
-           [FromForm] IFormCollection formCollection)
+           [FromBody] CallbackDepositViewModel request)
         {
             if (_logger.IsEnabled(LogLevel.Information))
             {
-                var formData = string.Join(", ", formCollection.Select(item => $"{item.Key}:{item.Value}"));
-
                 _logger.LogInformation(
                     $"Callback execute, request: " +
-                    $"{formData}");
+                    $"{JsonSerializer.Serialize(request)}");
             }
 
             var depositForm = await getDepositFormService

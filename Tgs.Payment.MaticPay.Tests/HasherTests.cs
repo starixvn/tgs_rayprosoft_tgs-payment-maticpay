@@ -1,14 +1,13 @@
 using System.Collections.Generic;
-using System.Linq;
 using NUnit.Framework;
 
 namespace Tgs.Payment.MaticPay.Tests
 {
     public class HasherTests
-    {        
+    {
         [Test]
         public void Test_Check_Hash()
-        {            
+        {
             var date = "20191127172151";
             var orderNo = "1574846511910";
             var channleType = "0";
@@ -26,14 +25,14 @@ namespace Tgs.Payment.MaticPay.Tests
                 { "noticeUrl", noticeUrl},
                 { "version",version},
                 { "bizAmt",bizAmt},
-                { "merchantNo", merchantNo}                
+                { "merchantNo", merchantNo}
             };
-            
+
             var hasher = new MaticPayHasher();
             var apiKey = "2cf6782df6d7478f872954ef8ff45a16";
             var actual = hasher.ComputeHash(apiKey, dict);
             var expected = "c9937998ef046127f762a002a6e8be8a";
-            Assert.AreEqual(expected,actual);
+            Assert.AreEqual(expected, actual);
         }
     }
 }
