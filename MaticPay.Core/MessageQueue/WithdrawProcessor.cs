@@ -34,9 +34,9 @@ namespace Tgs.Payment.MaticPay.MessageQueue
                 Version = "V2",
                 SignType = "MD5",
                 MerchantNo = settings.MerchantNo,
-                Date = DateTime.Now.ToString("YYYYMMDDhhmmss"),
+                Date = DateTime.Now.ToString("yyyyMMddhhmmss"),
                 ChannleType = "0",
-                OrderNo = settings.OrderNo,
+                OrderNo = settings.OrderNo.ToString(),
                 BizAmt = decimal.Parse(request.Amount),
                 AccountName = settings.AccountName,
                 BankCode = settings.BankCode,
@@ -64,6 +64,7 @@ namespace Tgs.Payment.MaticPay.MessageQueue
             {
                 var response = new MaticPayWithdrawFailResponse
                 {
+                    Code = withdrawResponse!.Code,
                     Msg = withdrawResponse!.Msg
                 };
 

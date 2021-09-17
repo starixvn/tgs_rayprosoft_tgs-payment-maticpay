@@ -5,8 +5,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-
-//using Microsoft.EntityFrameworkCore;//TODO:
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -43,7 +41,6 @@ namespace Tgs.Payment.MaticPay
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
-            //TODO:AddUmPay
             services
                .AddMaticPay((options, sp) =>
                {
@@ -53,7 +50,6 @@ namespace Tgs.Payment.MaticPay
                })
                .AddSingleton<MaticPaySerializer>();
 
-            //TODO:AddUmPayRepositories
             services
                .AddMaticPayRepositories((sp, builder) =>
                {

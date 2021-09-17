@@ -3,17 +3,18 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace Tgs.Payment.MaticPay
 {
     public class MaticPayHasher
     {
         private readonly static MD5 _Md5;
+
         static MaticPayHasher()
         {
             _Md5 = MD5.Create();
         }
+
         public string ComputeHash(string apiKey, IDictionary<string, object> dict)
         {
             dict = dict

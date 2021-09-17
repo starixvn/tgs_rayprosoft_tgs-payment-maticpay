@@ -6,6 +6,6 @@ namespace Tgs.Payment.MaticPay
         string MerchantNo,
         string ApiKey,
         Guid OrderNo,
-        decimal Amount
-        );
+        decimal Amount,
+        string CustomName);
 }

@@ -29,9 +29,9 @@ namespace Microsoft.Extensions.DependencyInjection
                     config
                         .ConfigQueueOptions((options, sp) =>
                         {
-                            var umPayOptions = sp.GetRequiredService<IOptions<MaticPayOptions>>().Value;
+                            var maticPayOptions = sp.GetRequiredService<IOptions<MaticPayOptions>>().Value;
 
-                            options.Url = umPayOptions.NatsUrl;
+                            options.Url = maticPayOptions.NatsUrl;
                         })
                         .AddProcessor<DepositProcessor>("tgs.payment.maticpay.deposit", "tgs.payment.maticpay.deposit")
                         .AddProcessor<WithdrawProcessor>("tgs.payment.maticpay.withdraw", "tgs.payment.maticpay.withdraw");
