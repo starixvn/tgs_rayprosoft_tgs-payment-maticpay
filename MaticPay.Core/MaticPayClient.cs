@@ -95,5 +95,38 @@ namespace Tgs.Payment.MaticPay
 
             return apiResponseData;
         }
+
+        public async ValueTask<MaticPayTransactionQueryResponse?> TransactionQueryAsync(string merchantNo, string apiKey, TransactionQueryOrder order)
+        {
+            var orderJson = JsonSerializer.Serialize(order, _jsonSerializerOptions);
+            var orderDict = JsonSerializer
+                .Deserialize<Dictionary<string, object>>(orderJson, _jsonSerializerOptions)!;
+
+            var sign = _maticPayHasher.ComputeHash(apiKey, orderDict);
+
+            orderDict["sign"] = sign;
+
+            var paramDict = orderDict
+                .AsEnumerable()
+                .Select(p => new KeyValuePair<string?, string?>(p.Key, p.Value?.ToString()));
+
+            var content = new FormUrlEncodedContent(paramDict);
+
+            var response = await _httpClient
+                .PostAsync("/api/defray/queryV2", content)
+                .ConfigureAwait(false);
+
+            _logger.LogInformation($"Transaction Query StatusCode: {response.StatusCode}");
+
+            var bodyJson = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+
+            _logger.LogInformation($"Transaction Query Body: {bodyJson}");
+
+            response.EnsureSuccessStatusCode();
+
+            var apiResponseData = JsonSerializer.Deserialize<MaticPayTransactionQueryResponse?>(bodyJson, _jsonSerializerOptions);
+
+            return apiResponseData;
+        }
     }
 }
