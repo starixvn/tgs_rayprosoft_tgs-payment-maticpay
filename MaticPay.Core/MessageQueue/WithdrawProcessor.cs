@@ -2,6 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Google.Protobuf;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Tgs.MessageQueue;
 using Tgs.Payment.Clients;
@@ -13,6 +14,7 @@ namespace Tgs.Payment.MaticPay.MessageQueue
     {
         private readonly MaticPaySerializer _maticPaySerializer;
         private readonly MaticPayClient _maticPayClient;
+        private readonly ILogger<WithdrawProcessor> _logger;
         private readonly IPaymentClient _paymentClient;
         private readonly MaticPayOptions _options;
 
@@ -20,10 +22,12 @@ namespace Tgs.Payment.MaticPay.MessageQueue
             MaticPaySerializer maticPaySerializer,
             IOptions<MaticPayOptions> optionsAccessor,
             MaticPayClient maticPayClient,
+            ILogger<WithdrawProcessor> logger,
             IPaymentClient paymentClient)
         {
             _maticPaySerializer = maticPaySerializer ?? throw new ArgumentNullException(nameof(maticPaySerializer));
             _maticPayClient = maticPayClient ?? throw new ArgumentNullException(nameof(maticPayClient));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _paymentClient = paymentClient ?? throw new ArgumentNullException(nameof(paymentClient));
             _options = optionsAccessor.Value;
         }
@@ -73,6 +77,10 @@ namespace Tgs.Payment.MaticPay.MessageQueue
                 if (transactionQueryResponse!.Code == "0")
                 {
                     thirdPartyOrderNo = transactionQueryResponse!.Detail!.SysOrderNo;
+                }
+                else
+                {
+                    _logger.LogInformation($"transactionQueryResponse Failed:{transactionQueryResponse.Msg}");
                 }
 
                 await _paymentClient
