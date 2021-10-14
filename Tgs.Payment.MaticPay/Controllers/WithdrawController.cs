@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Tgs.Payment.Clients;
 using Tgs.Payment.MaticPay.Services;
 using Tgs.Payment.MaticPay.ViewModels;
 using TGS.ServiceUtility;
@@ -42,11 +43,14 @@ namespace Tgs.Payment.MaticPay.Controllers
                 .GetAsync(new GetWithdrawFormQuery(request.OrderNo))
                 .ConfigureAwait(false);
 
+            if (withdrawForm == null)
+                return "Withdraw form not found.";
+
             var callbackMessage = new MaticPayWithdrawReturn()
             {
                 OrderNo = request.OrderNo,
-                OrderAmt = request.OrderAmt,
-                BizAmt = request.BizAmt,
+                OrderAmount = decimal.Parse(request.OrderAmt),
+                BizAmount = request.BizAmt,
                 Status = request.Status,
                 Remark = request.Remark,
                 Version = request.Version,
@@ -55,13 +59,22 @@ namespace Tgs.Payment.MaticPay.Controllers
                 Sign = request.Sign
             };
 
+            var formStatus = withdrawForm.Status;
+            if (withdrawForm.Status == PaymentFlowState.Approved)
+                formStatus = PaymentFlowState.Paid;
+
             await saveReturnService
-                .ExecuteAsync(new SaveWithdrawReturnCommand(withdrawForm.Id, callbackMessage))
+                .ExecuteAsync(new SaveWithdrawReturnCommand(
+                    withdrawForm.Id,
+                    formStatus,
+                    callbackMessage,
+                    callbackMessage.OrderAmount))
                 .ConfigureAwait(false);
 
             _logger.LogInformation(JsonSerializer.Serialize(callbackMessage, jsonSerializerOptions));
 
             _logger.LogInformation("callback executed");
+
             return "SUCCESS";
         }
     }

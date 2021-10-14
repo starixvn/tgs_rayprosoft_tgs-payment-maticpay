@@ -14,13 +14,13 @@ namespace Tgs.Payment.MaticPay.ViewModels
         /// 訂單金額
         /// </summary>
         [JsonPropertyName("orderAmt")]
-        public string OrderAmt { get; init; } = default!;
+        public string OrderAmount { get; init; } = default!;
 
         /// <summary>
         /// 代付金額
         /// </summary>
         [JsonPropertyName("bizAmt")]
-        public string BizAmt { get; init; } = default!;
+        public string BizAmount { get; init; } = default!;
 
         /// <summary>
         /// 狀態

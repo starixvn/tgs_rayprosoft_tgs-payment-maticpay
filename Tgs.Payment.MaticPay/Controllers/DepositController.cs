@@ -4,6 +4,7 @@ using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Tgs.Payment.Clients;
 using Tgs.Payment.MaticPay.Services;
 using Tgs.Payment.MaticPay.ViewModels;
 using TGS.ServiceUtility;
@@ -25,7 +26,7 @@ namespace Tgs.Payment.MaticPay.Controllers
         [HttpPost("callback")]
         [Produces("text/plain")]
         public async Task<string> DepositCallback(
-           [FromServices] IGetService<GetDepositFormQuery, DepositFormInfo> getDepositFormService,
+           [FromServices] IGetService<GetDepositFormQuery, DepositFormInfo?> getDepositFormService,
            [FromServices] ICommandService<SaveDepositReturnCommand> saveReturnService,
            [FromServices] ICommandService<ApproveDepositFormCommand> approveService,
            [FromBody] CallbackDepositViewModel request)
@@ -41,13 +42,16 @@ namespace Tgs.Payment.MaticPay.Controllers
                 .GetAsync(new GetDepositFormQuery(request.OrderNo))
                 .ConfigureAwait(false);
 
-            if (depositForm.Status < 1000)
+            if (depositForm == null)
+                return "Deposit form not found.";
+
+            if (depositForm.Status < PaymentFlowState.WaitApprove)
             {
                 var callbackMessage = new MaticPayDepositReturn()
                 {
                     OrderNo = request.OrderNo,
-                    OrderAmt = request.OrderAmt,
-                    BizAmt = request.BizAmt,
+                    OrderAmount = decimal.Parse(request.OrderAmount),
+                    BizAmount = request.BizAmount,
                     Status = request.Status,
                     Remark = request.Remark,
                     Version = request.Version,
@@ -69,11 +73,15 @@ namespace Tgs.Payment.MaticPay.Controllers
                 _logger.LogInformation(JsonSerializer.Serialize(callbackMessage, jsonSerializerOptions));
 
                 await approveService
-                    .ExecuteAsync(new ApproveDepositFormCommand(depositForm.Id, depositForm.BrandId))
+                    .ExecuteAsync(new ApproveDepositFormCommand(
+                        depositForm.Id,
+                        depositForm.BrandId,
+                        callbackMessage.OrderAmount))
                     .ConfigureAwait(false);
             }
 
             _logger.LogInformation("callback executed");
+
             return "SUCCESS";
         }
     }

@@ -1,4 +1,6 @@
-﻿namespace Tgs.Payment.MaticPay
+﻿using System.Text.Json.Serialization;
+
+namespace Tgs.Payment.MaticPay
 {
     public class MaticPayWithdrawReturn
     {
@@ -10,12 +12,14 @@
         /// <summary>
         /// 訂單金額
         /// </summary>
-        public string OrderAmt { get; init; } = default!;
+        [JsonPropertyName("orderAmt")]
+        public decimal OrderAmount { get; init; }
 
         /// <summary>
         /// 確認金額
         /// </summary>
-        public string BizAmt { get; init; } = default!;
+        [JsonPropertyName("bizAmt")]
+        public string BizAmount { get; init; } = default!;
 
         /// <summary>
         /// 狀態
