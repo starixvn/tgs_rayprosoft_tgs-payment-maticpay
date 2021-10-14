@@ -24,6 +24,7 @@ nats: nats://localhost:4222
 
 paymentApiUrl: https://mgp-pay.com:8443/
 callbackBaseUrl: https://dev.payment.tgsdev.gq/maticpay
+paymentServiceBaseUrl: http://payment-api
 
 podAnnotations: {}
 
@@ -53,6 +54,13 @@ resources:
   requests:
     cpu: 400m
     memory: 1Gi
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
 
 nodeSelector: {}
 
