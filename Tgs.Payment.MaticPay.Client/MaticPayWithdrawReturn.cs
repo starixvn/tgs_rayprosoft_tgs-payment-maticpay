@@ -19,7 +19,7 @@ namespace Tgs.Payment.MaticPay
         /// 確認金額
         /// </summary>
         [JsonPropertyName("bizAmt")]
-        public string BizAmount { get; init; } = default!;
+        public decimal BizAmount { get; init; }
 
         /// <summary>
         /// 狀態

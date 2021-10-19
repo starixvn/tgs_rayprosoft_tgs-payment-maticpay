@@ -34,5 +34,106 @@ namespace Tgs.Payment.MaticPay.Tests
             var expected = "c9937998ef046127f762a002a6e8be8a";
             Assert.AreEqual(expected, actual);
         }
+
+        [Test]
+        public void Verify_Deposit_Callback_Hash()
+        {
+            var orderNo = "D2110180546364738054";
+            var bizAmt = "1999.00";
+            var orderAmt = "1999.00";
+            var status = "1";
+            var remark = "OK";
+            var notes = "";
+            var version = "V2";
+            var date = "20211018174930";
+            var sign = "31798203cdfb3e5d7234f41a5e436c0f";
+
+            var dict = new Dictionary<string, object>
+            {
+                { "orderNo", orderNo},
+                { "orderAmt", orderAmt },
+                { "bizAmt",bizAmt},
+                { "status", status},
+                { "remark", remark},
+                { "version",version},
+                { "date", date },
+                { "notes", notes}
+            };
+
+            var hasher = new MaticPayHasher();
+
+            var apiKey = "919fc7c0c8494839ba26099f921ac1f4";
+            var actual = hasher.ComputeHash(apiKey, dict);
+            var expected = sign;
+
+            Assert.AreEqual(expected, actual);
+        }
+
+        [Test]
+        public void Verify_Deposit_Old_Data_Callback_Hash()
+        {
+            var orderNo = "4b39e81c-7cea-4867-937b-8baf7ed598c0";
+            var bizAmt = "777.00";
+            var orderAmt = "777.00";
+            var status = "1";
+            var remark = "OK";
+            var notes = "";
+            var version = "V2";
+            var date = "20211018143330";
+            var sign = "7f15811072d83a68214a19cfabb6a2ae";
+
+            var dict = new Dictionary<string, object>
+            {
+                { "orderNo", orderNo},
+                { "orderAmt", orderAmt },
+                { "bizAmt",bizAmt},
+                { "status", status},
+                { "remark", remark},
+                { "version",version},
+                { "date", date },
+                { "notes", notes}
+            };
+
+            var hasher = new MaticPayHasher();
+
+            var apiKey = "68199f7df5e142c69ae2516b75c176d5";
+            var actual = hasher.ComputeHash(apiKey, dict);
+            var expected = sign;
+
+            Assert.AreEqual(expected, actual);
+        }
+
+        [Test]
+        public void Verify_Withdraw_Old_Data_Callback_Hash()
+        {
+            var date = "20210917093230";
+            var sign = "b2b9fa574a087285a9e50f085465b51e";
+            var notes = "";
+            var bizAmt = "500.00";
+            var remark = "¥X´Ú§¹¦¨";
+            var status = "1";
+            var orderNo = "f53a90b0-d170-4397-834f-c15615264c94";
+            var version = "V2";
+            var orderAmt = "500.00";
+
+            var dict = new Dictionary<string, object>
+            {
+                { "orderNo", orderNo},
+                { "orderAmt", orderAmt },
+                { "bizAmt",bizAmt},
+                { "status", status},
+                { "remark", remark},
+                { "version",version},
+                { "date", date },
+                { "notes", notes}
+            };
+            var hasher = new MaticPayHasher();
+
+            var apiKey = "68199f7df5e142c69ae2516b75c176d5";
+            var actual = hasher.ComputeHash(apiKey, dict);
+            var expected = sign;
+
+            Assert.AreEqual(expected, actual);
+        }
     }
 }

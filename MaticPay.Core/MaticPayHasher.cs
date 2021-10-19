@@ -18,7 +18,7 @@ namespace Tgs.Payment.MaticPay
         public string ComputeHash(string apiKey, IDictionary<string, object> dict)
         {
             dict = dict
-                .Where(x => x.Value != null)
+                .Where(x => x.Value != null && x.Value.ToString() != "")
                 .Select(x => x)
                 .OrderBy(x => x.Key)
                 .ToDictionary(x => x.Key, x => x.Value);
@@ -26,7 +26,7 @@ namespace Tgs.Payment.MaticPay
             var content = string.Join(
                 "&",
                 dict.Select(p =>
-                {
+                {                    
                     return $"{p.Key}={p.Value}";
                 }));
 
