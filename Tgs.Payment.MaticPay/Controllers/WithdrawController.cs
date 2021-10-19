@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -27,55 +28,74 @@ namespace Tgs.Payment.MaticPay.Controllers
         [Produces("text/plain")]
         public async Task<string> WithdrawCallback(
             [FromServices] IOptions<JsonOptions> jsonOptionsAccessor,
-            [FromServices] IGetService<GetWithdrawFormQuery, WithdrawFormInfo> getWithdrawFormService,
+            [FromServices] IGetService<GetWithdrawFormQuery, WithdrawFormInfo?> getWithdrawFormService,
+            [FromServices] ICommandService<CheckSigningCodeCommand> checkSigningCodeService,
             [FromServices] ICommandService<SaveWithdrawReturnCommand> saveReturnService,
-            [FromBody] CallbackWithdrawViewModel request)
+            [FromBody] Dictionary<string, object> response)
         {
-            if (_logger.IsEnabled(LogLevel.Information))
-            {
-                _logger.LogInformation(
-                    $"Callback execute, request: " +
-                    $"{JsonSerializer.Serialize(request)}");
-            }
+            var json = JsonSerializer.Serialize(response);
+
+            _logger.LogInformation(json);
+
+            var dict = JsonSerializer.Deserialize<Dictionary<string, object>>(json)!;
+            dict.Remove("sign");
+
             var jsonSerializerOptions = jsonOptionsAccessor.Value.JsonSerializerOptions;
 
+            var withdrawResponse = JsonSerializer.Deserialize<CallbackWithdrawViewModel>(json)!;
+
             var withdrawForm = await getWithdrawFormService
-                .GetAsync(new GetWithdrawFormQuery(request.OrderNo))
+                .GetAsync(new GetWithdrawFormQuery(withdrawResponse.OrderNo))
                 .ConfigureAwait(false);
 
             if (withdrawForm == null)
                 return "Withdraw form not found.";
 
-            var callbackMessage = new MaticPayWithdrawReturn()
-            {
-                OrderNo = request.OrderNo,
-                OrderAmount = decimal.Parse(request.OrderAmt),
-                BizAmount = request.BizAmt,
-                Status = request.Status,
-                Remark = request.Remark,
-                Version = request.Version,
-                Date = request.Date,
-                Notes = request.Notes,
-                Sign = request.Sign
-            };
+            var checkSigningCodeCommand = new CheckSigningCodeCommand(
+                dict,
+                withdrawResponse.Sign,
+                withdrawForm!.ApplyInfo!.Settings.ApiKey
+                );
 
-            var formStatus = withdrawForm.Status;
-            if (withdrawForm.Status == PaymentFlowState.Approved)
-                formStatus = PaymentFlowState.Paid;
-
-            await saveReturnService
-                .ExecuteAsync(new SaveWithdrawReturnCommand(
-                    withdrawForm.Id,
-                    formStatus,
-                    callbackMessage,
-                    callbackMessage.OrderAmount))
+            await checkSigningCodeService
+                .ExecuteAsync(checkSigningCodeCommand)
                 .ConfigureAwait(false);
 
-            _logger.LogInformation(JsonSerializer.Serialize(callbackMessage, jsonSerializerOptions));
+            if (await checkSigningCodeCommand.CommandResultSource.Task.ConfigureAwait(false))
+            {
+                var returnData = new MaticPayWithdrawReturn()
+                {
+                    OrderNo = withdrawResponse.OrderNo,
+                    OrderAmount = decimal.Parse(withdrawResponse.OrderAmt),
+                    BizAmount = decimal.Parse(withdrawResponse.BizAmt),
+                    Status = withdrawResponse.Status,
+                    Remark = withdrawResponse.Remark,
+                    Version = withdrawResponse.Version,
+                    Date = withdrawResponse.Date,
+                    Notes = withdrawResponse.Notes,
+                    Sign = withdrawResponse.Sign
+                };
 
-            _logger.LogInformation("callback executed");
+                var formStatus = withdrawForm.Status;
+                if (withdrawForm.Status == PaymentFlowState.Approved)
+                    formStatus = PaymentFlowState.Paid;
 
-            return "SUCCESS";
+                await saveReturnService
+                    .ExecuteAsync(new SaveWithdrawReturnCommand(
+                        withdrawForm.Id,
+                        formStatus,
+                        returnData,
+                        returnData.BizAmount))
+                    .ConfigureAwait(false);
+
+                _logger.LogInformation(JsonSerializer.Serialize(returnData, jsonSerializerOptions));
+
+                _logger.LogInformation("callback executed");
+
+                return "SUCCESS";
+            }
+            else
+                throw new Exception();
         }
     }
 }
