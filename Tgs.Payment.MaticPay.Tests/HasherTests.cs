@@ -102,38 +102,5 @@ namespace Tgs.Payment.MaticPay.Tests
 
             Assert.AreEqual(expected, actual);
         }
-
-        [Test]
-        public void Verify_Withdraw_Old_Data_Callback_Hash()
-        {
-            var date = "20210917093230";
-            var sign = "b2b9fa574a087285a9e50f085465b51e";
-            var notes = "";
-            var bizAmt = "500.00";
-            var remark = "¥X´Ú§¹¦¨";
-            var status = "1";
-            var orderNo = "f53a90b0-d170-4397-834f-c15615264c94";
-            var version = "V2";
-            var orderAmt = "500.00";
-
-            var dict = new Dictionary<string, object>
-            {
-                { "orderNo", orderNo},
-                { "orderAmt", orderAmt },
-                { "bizAmt",bizAmt},
-                { "status", status},
-                { "remark", remark},
-                { "version",version},
-                { "date", date },
-                { "notes", notes}
-            };
-            var hasher = new MaticPayHasher();
-
-            var apiKey = "68199f7df5e142c69ae2516b75c176d5";
-            var actual = hasher.ComputeHash(apiKey, dict);
-            var expected = sign;
-
-            Assert.AreEqual(expected, actual);
-        }
     }
 }
