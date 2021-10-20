@@ -76,17 +76,34 @@ namespace Tgs.Payment.MaticPay.Controllers
                     Sign = withdrawResponse.Sign
                 };
 
-                var formStatus = withdrawForm.Status;
-                if (withdrawForm.Status == PaymentFlowState.Approved)
-                    formStatus = PaymentFlowState.Paid;
+                if (withdrawResponse.Status == "1")
+                {
+                    var formStatus = withdrawForm.Status;
+                    if (withdrawForm.Status == PaymentFlowState.Approved)
+                        formStatus = PaymentFlowState.Paid;
 
-                await saveReturnService
-                    .ExecuteAsync(new SaveWithdrawReturnCommand(
+                    var saveWithdrawCommand = new SaveWithdrawReturnCommand(
+                                withdrawForm.Id,
+                                formStatus,
+                                returnData,
+                                returnData.BizAmount);
+
+                    await saveReturnService
+                        .ExecuteAsync(saveWithdrawCommand)
+                        .ConfigureAwait(false);
+                }
+                else
+                {
+                    var saveWithdrawCommand = new SaveWithdrawReturnCommand(
                         withdrawForm.Id,
-                        formStatus,
+                        withdrawForm.Status,
                         returnData,
-                        returnData.BizAmount))
-                    .ConfigureAwait(false);
+                        null);
+
+                    await saveReturnService
+                        .ExecuteAsync(saveWithdrawCommand)
+                        .ConfigureAwait(false);
+                }
 
                 _logger.LogInformation(JsonSerializer.Serialize(returnData, jsonSerializerOptions));
 
