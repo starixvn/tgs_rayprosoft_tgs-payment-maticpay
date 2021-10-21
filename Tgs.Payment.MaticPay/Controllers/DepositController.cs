@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Tgs.Payment.Clients;
 using Tgs.Payment.MaticPay.Services;
 using Tgs.Payment.MaticPay.ViewModels;
 using TGS.ServiceUtility;
@@ -25,56 +27,78 @@ namespace Tgs.Payment.MaticPay.Controllers
         [HttpPost("callback")]
         [Produces("text/plain")]
         public async Task<string> DepositCallback(
-           [FromServices] IGetService<GetDepositFormQuery, DepositFormInfo> getDepositFormService,
+           [FromServices] IGetService<GetDepositFormQuery, DepositFormInfo?> getDepositFormService,
+           [FromServices] ICommandService<CheckSigningCodeCommand> checkSigningCodeService,
            [FromServices] ICommandService<SaveDepositReturnCommand> saveReturnService,
            [FromServices] ICommandService<ApproveDepositFormCommand> approveService,
-           [FromBody] CallbackDepositViewModel request)
+           [FromBody] Dictionary<string, object> response)
         {
-            if (_logger.IsEnabled(LogLevel.Information))
-            {
-                _logger.LogInformation(
-                    $"Callback execute, request: " +
-                    $"{JsonSerializer.Serialize(request)}");
-            }
+            var json = JsonSerializer.Serialize(response);
+
+            _logger.LogInformation(json);
+
+            var dict = JsonSerializer.Deserialize<Dictionary<string, object>>(json)!;
+            dict.Remove("sign");
+
+            var depositResponse = JsonSerializer.Deserialize<CallbackDepositViewModel>(json)!;
 
             var depositForm = await getDepositFormService
-                .GetAsync(new GetDepositFormQuery(request.OrderNo))
+                .GetAsync(new GetDepositFormQuery(depositResponse.OrderNo))
                 .ConfigureAwait(false);
 
-            if (depositForm.Status < 1000)
+            var checkSigningCodeCommand = new CheckSigningCodeCommand(
+                dict,
+                depositResponse.Sign,
+                depositForm!.ApplyInfo!.Settings.ApiKey
+                );
+
+            await checkSigningCodeService
+                .ExecuteAsync(checkSigningCodeCommand)
+                .ConfigureAwait(false);
+
+            if (await checkSigningCodeCommand.CommandResultSource.Task.ConfigureAwait(false))
             {
-                var callbackMessage = new MaticPayDepositReturn()
+                if (depositForm.Status < PaymentFlowState.WaitApprove)
                 {
-                    OrderNo = request.OrderNo,
-                    OrderAmt = request.OrderAmt,
-                    BizAmt = request.BizAmt,
-                    Status = request.Status,
-                    Remark = request.Remark,
-                    Version = request.Version,
-                    Date = request.Date,
-                    Notes = request.Notes,
-                    Sign = request.Sign
-                };
+                    var returnData = new MaticPayDepositReturn()
+                    {
+                        OrderNo = depositResponse.OrderNo,
+                        OrderAmount = decimal.Parse(depositResponse.OrderAmount),
+                        BizAmount = decimal.Parse(depositResponse.BizAmount),
+                        Status = depositResponse.Status,
+                        Remark = depositResponse.Remark,
+                        Version = depositResponse.Version,
+                        Date = depositResponse.Date,
+                        Notes = depositResponse.Notes,
+                        Sign = depositResponse.Sign
+                    };
 
-                await saveReturnService
-                    .ExecuteAsync(new SaveDepositReturnCommand(depositForm.Id, callbackMessage))
-                    .ConfigureAwait(false);
+                    await saveReturnService
+                        .ExecuteAsync(new SaveDepositReturnCommand(depositForm.Id, returnData))
+                        .ConfigureAwait(false);
 
-                var jsonSerializerOptions = new JsonSerializerOptions
-                {
-                    DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault,
-                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-                };
+                    var jsonSerializerOptions = new JsonSerializerOptions
+                    {
+                        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault,
+                        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                    };
 
-                _logger.LogInformation(JsonSerializer.Serialize(callbackMessage, jsonSerializerOptions));
+                    _logger.LogInformation(JsonSerializer.Serialize(returnData, jsonSerializerOptions));
 
-                await approveService
-                    .ExecuteAsync(new ApproveDepositFormCommand(depositForm.Id, depositForm.BrandId))
-                    .ConfigureAwait(false);
+                    await approveService
+                        .ExecuteAsync(new ApproveDepositFormCommand(
+                            depositForm.Id,
+                            depositForm.BrandId,
+                            returnData.BizAmount))
+                        .ConfigureAwait(false);
+                }
+
+                _logger.LogInformation("callback executed");
+
+                return "SUCCESS";
             }
-
-            _logger.LogInformation("callback executed");
-            return "SUCCESS";
+            else
+                throw new Exception();
         }
     }
 }

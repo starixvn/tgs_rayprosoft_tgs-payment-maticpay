@@ -1,25 +1,44 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Tgs.Payment.Clients;
 using TGS.ServiceUtility;
 
 namespace Tgs.Payment.MaticPay.Services
 {
-    internal class GetDepositFormQueryService : IGetService<GetDepositFormQuery, DepositFormInfo>
+    internal class GetDepositFormQueryService : IGetService<GetDepositFormQuery, DepositFormInfo?>
     {
-        private readonly ITgsRepository _tgsRepository;
+        private readonly IPaymentServiceClient _paymentServiceClient;
+        private readonly MaticPaySerializer _maticPaySerializer;
 
-        public GetDepositFormQueryService(ITgsRepository tgsRepository)
+        public GetDepositFormQueryService(
+            IPaymentServiceClient paymentServiceClient,
+            MaticPaySerializer maticPaySerializer)
         {
-            _tgsRepository = tgsRepository ?? throw new ArgumentNullException(nameof(tgsRepository));
+            _paymentServiceClient = paymentServiceClient ?? throw new ArgumentNullException(nameof(paymentServiceClient));
+            _maticPaySerializer = maticPaySerializer ?? throw new ArgumentNullException(nameof(maticPaySerializer));
         }
 
-        public ValueTask<DepositFormInfo> GetAsync(GetDepositFormQuery query, CancellationToken cancellationToken = default)
+        public async ValueTask<DepositFormInfo?> GetAsync(GetDepositFormQuery query, CancellationToken cancellationToken = default)
         {
-            var tradeNo = new Guid(query.OrderNo);
+            var formId = new Guid(query.OrderNo);
 
-            return _tgsRepository
-                .GetDepositFormByIdAsync(tradeNo);
+            var formData = await _paymentServiceClient
+                .GetDepositFormAsync(formId)
+                .ConfigureAwait(false);
+
+            return formData == null
+                ? null
+                : new DepositFormInfo(
+                    formData.Id,
+                    formData.PlayerCode,
+                    formData.BrandId,
+                    formData.BrandPaymentId,
+                    formData.Amount,
+                    formData.Status,
+                    string.IsNullOrEmpty(formData.ApplyInfo)
+                        ? null
+                        : _maticPaySerializer.Deserialize<MaticPayDepositApplyInfo>(formData.ApplyInfo));
         }
     }
 }

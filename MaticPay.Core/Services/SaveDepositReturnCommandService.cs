@@ -1,20 +1,37 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Tgs.Payment.Clients;
 using TGS.ServiceUtility;
 
 namespace Tgs.Payment.MaticPay.Services
 {
     internal class SaveDepositReturnCommandService : ICommandService<SaveDepositReturnCommand>
     {
-        private readonly ITgsRepository _tgsRepository;
+        private readonly IPaymentServiceClient _paymentServiceClient;
+        private readonly MaticPaySerializer _maticPaySerializer;
 
-        public SaveDepositReturnCommandService(ITgsRepository tgsRepository)
+        public SaveDepositReturnCommandService(IPaymentServiceClient paymentServiceClient, MaticPaySerializer maticPaySerializer)
         {
-            _tgsRepository = tgsRepository ?? throw new ArgumentNullException(nameof(tgsRepository));
+            _paymentServiceClient = paymentServiceClient ?? throw new ArgumentNullException(nameof(paymentServiceClient));
+            _maticPaySerializer = maticPaySerializer ?? throw new ArgumentNullException(nameof(maticPaySerializer));
         }
 
-        public ValueTask ExecuteAsync(SaveDepositReturnCommand command, CancellationToken cancellationToken = default)
-            => _tgsRepository.SaveDepositReturnAsync(command.FormId, command.DepositReturn);
+        public async ValueTask ExecuteAsync(SaveDepositReturnCommand command, CancellationToken cancellationToken = default)
+        {
+            var formData = await _paymentServiceClient
+                .GetDepositFormAsync(command.FormId)
+                .ConfigureAwait(false);
+
+            if (formData == null)
+                return;
+
+            await _paymentServiceClient
+                .SubmitDepositFormStatusAsync(
+                    command.FormId,
+                    formData.Status,
+                    _maticPaySerializer.Serialize(command.DepositReturn))
+                .ConfigureAwait(false);
+        }
     }
 }
