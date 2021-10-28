@@ -1,4 +1,5 @@
 ﻿using System;
+using Tgs.Payment.Clients;
 
 namespace Tgs.Payment.MaticPay
 {
@@ -8,7 +9,7 @@ namespace Tgs.Payment.MaticPay
        Guid BrandId,
        Guid BrandPaymentId,
        decimal Amount,
-       int Status,
+       PaymentFlowState Status,
        MaticPayDepositApplyInfo? ApplyInfo,
        string? PaymentReturn = null);
 }

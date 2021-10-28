@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Tgs.Payment.Clients;
 using Tgs.Payment.MaticPay.Services;
 using Tgs.Payment.MaticPay.ViewModels;
 using TGS.ServiceUtility;
@@ -26,43 +28,91 @@ namespace Tgs.Payment.MaticPay.Controllers
         [Produces("text/plain")]
         public async Task<string> WithdrawCallback(
             [FromServices] IOptions<JsonOptions> jsonOptionsAccessor,
-            [FromServices] IGetService<GetWithdrawFormQuery, WithdrawFormInfo> getWithdrawFormService,
+            [FromServices] IGetService<GetWithdrawFormQuery, WithdrawFormInfo?> getWithdrawFormService,
+            [FromServices] ICommandService<CheckSigningCodeCommand> checkSigningCodeService,
             [FromServices] ICommandService<SaveWithdrawReturnCommand> saveReturnService,
-            [FromBody] CallbackWithdrawViewModel request)
+            [FromBody] Dictionary<string, object> response)
         {
-            if (_logger.IsEnabled(LogLevel.Information))
-            {
-                _logger.LogInformation(
-                    $"Callback execute, request: " +
-                    $"{JsonSerializer.Serialize(request)}");
-            }
+            var json = JsonSerializer.Serialize(response);
+
+            _logger.LogInformation(json);
+
+            var dict = JsonSerializer.Deserialize<Dictionary<string, object>>(json)!;
+            dict.Remove("sign");
+
             var jsonSerializerOptions = jsonOptionsAccessor.Value.JsonSerializerOptions;
 
+            var withdrawResponse = JsonSerializer.Deserialize<CallbackWithdrawViewModel>(json)!;
+
             var withdrawForm = await getWithdrawFormService
-                .GetAsync(new GetWithdrawFormQuery(request.OrderNo))
+                .GetAsync(new GetWithdrawFormQuery(withdrawResponse.OrderNo))
                 .ConfigureAwait(false);
 
-            var callbackMessage = new MaticPayWithdrawReturn()
+            if (withdrawForm == null)
+                return "Withdraw form not found.";
+
+            var checkSigningCodeCommand = new CheckSigningCodeCommand(
+                dict,
+                withdrawResponse.Sign,
+                withdrawForm!.ApplyInfo!.Settings.ApiKey
+                );
+
+            await checkSigningCodeService
+                .ExecuteAsync(checkSigningCodeCommand)
+                .ConfigureAwait(false);
+
+            if (await checkSigningCodeCommand.CommandResultSource.Task.ConfigureAwait(false))
             {
-                OrderNo = request.OrderNo,
-                OrderAmt = request.OrderAmt,
-                BizAmt = request.BizAmt,
-                Status = request.Status,
-                Remark = request.Remark,
-                Version = request.Version,
-                Date = request.Date,
-                Notes = request.Notes,
-                Sign = request.Sign
-            };
+                var returnData = new MaticPayWithdrawReturn()
+                {
+                    OrderNo = withdrawResponse.OrderNo,
+                    OrderAmount = decimal.Parse(withdrawResponse.OrderAmt),
+                    BizAmount = decimal.Parse(withdrawResponse.BizAmt),
+                    Status = withdrawResponse.Status,
+                    Remark = withdrawResponse.Remark,
+                    Version = withdrawResponse.Version,
+                    Date = withdrawResponse.Date,
+                    Notes = withdrawResponse.Notes,
+                    Sign = withdrawResponse.Sign
+                };
 
-            await saveReturnService
-                .ExecuteAsync(new SaveWithdrawReturnCommand(withdrawForm.Id, callbackMessage))
-                .ConfigureAwait(false);
+                if (withdrawResponse.Status == "1")
+                {
+                    var formStatus = withdrawForm.Status;
+                    if (withdrawForm.Status == PaymentFlowState.Approved)
+                        formStatus = PaymentFlowState.Paid;
 
-            _logger.LogInformation(JsonSerializer.Serialize(callbackMessage, jsonSerializerOptions));
+                    var saveWithdrawCommand = new SaveWithdrawReturnCommand(
+                                withdrawForm.Id,
+                                formStatus,
+                                returnData,
+                                returnData.BizAmount);
 
-            _logger.LogInformation("callback executed");
-            return "SUCCESS";
+                    await saveReturnService
+                        .ExecuteAsync(saveWithdrawCommand)
+                        .ConfigureAwait(false);
+                }
+                else
+                {
+                    var saveWithdrawCommand = new SaveWithdrawReturnCommand(
+                        withdrawForm.Id,
+                        withdrawForm.Status,
+                        returnData,
+                        null);
+
+                    await saveReturnService
+                        .ExecuteAsync(saveWithdrawCommand)
+                        .ConfigureAwait(false);
+                }
+
+                _logger.LogInformation(JsonSerializer.Serialize(returnData, jsonSerializerOptions));
+
+                _logger.LogInformation("callback executed");
+
+                return "SUCCESS";
+            }
+            else
+                throw new Exception();
         }
     }
 }

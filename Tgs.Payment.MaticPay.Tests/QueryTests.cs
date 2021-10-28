@@ -26,7 +26,7 @@ namespace Tgs.Payment.MaticPay.Tests
                 { "merchantNo", merchantNo},
                 { "date", date },
                 { "orderNo", orderNo},
-                { "sign", null }
+                { "sign", null! }
             };
             var hasher = new MaticPayHasher();
             var apiKey = "68199f7df5e142c69ae2516b75c176d5";

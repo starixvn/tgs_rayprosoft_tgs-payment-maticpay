@@ -84,7 +84,7 @@ namespace Tgs.Payment.MaticPay.MessageQueue
                 }
 
                 await _paymentClient
-                    .EmitWithdrawFormThirdPartyOrderNoAsync(settings.OrderNo, thirdPartyOrderNo!)
+                    .SaveWithdrawFormThirdPartyOrderNoAsync(settings.OrderNo, thirdPartyOrderNo!)
                     .ConfigureAwait(false);
 
                 var msg = new WithdrawResponse
