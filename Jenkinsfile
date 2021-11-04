@@ -111,25 +111,26 @@ pipeline {
 			steps {
 				withKubeConfig([credentialsId: env.k8s_config]) {        
                     withCredentials([string(credentialsId: "tgs-${kube_ns}-connectionstring", variable: "tgs_tgs_conn")]) {
-                    sh '''
-						helm template deployment/k8s/maticpay \
-							--set image.tag=${TAG} \
-							--set namespace=$kube_ns \
-							--set connectionStrings.tgs="${tgs_tgs_conn}" \
-							--set paymentApiUrl="$tgs_paymentApiUrl_maticpay" \
-							--set nats="$tgs_nats" \
-							--set callbackBaseUrl="$tgs_paymentCallbackBaseUrl_maticpay"
-					'''
-					sh '''
-						helm template deployment/k8s/maticpay \
-							--set image.tag=${TAG} \
-							--set namespace=$kube_ns \
-							--set connectionStrings.tgs="${tgs_tgs_conn}" \
-							--set paymentApiUrl="$tgs_paymentApiUrl_maticpay" \
-							--set nats="$tgs_nats" \
-							--set callbackBaseUrl="$tgs_paymentCallbackBaseUrl_maticpay" \
-						| kubectl -n $kube_ns apply -f -
-					'''
+                        sh '''
+                            helm template deployment/k8s/maticpay \
+                                --set image.tag=${TAG} \
+                                --set namespace=$kube_ns \
+                                --set connectionStrings.tgs="${tgs_tgs_conn}" \
+                                --set paymentApiUrl="$tgs_paymentApiUrl_maticpay" \
+                                --set nats="$tgs_nats" \
+                                --set callbackBaseUrl="$tgs_paymentCallbackBaseUrl_maticpay"
+                        '''
+                        sh '''
+                            helm template deployment/k8s/maticpay \
+                                --set image.tag=${TAG} \
+                                --set namespace=$kube_ns \
+                                --set connectionStrings.tgs="${tgs_tgs_conn}" \
+                                --set paymentApiUrl="$tgs_paymentApiUrl_maticpay" \
+                                --set nats="$tgs_nats" \
+                                --set callbackBaseUrl="$tgs_paymentCallbackBaseUrl_maticpay" \
+                            | kubectl -n $kube_ns apply -f -
+                        '''
+                    }
                 }
 			}
 		}
@@ -151,7 +152,7 @@ pipeline {
 		stage('Remove Image Tags') {					
             steps {	
 			    withCredentials([string(credentialsId: "GitLabToken", variable: "GitLabToken")]) {					
-                    sh "curl --request DELETE --data \'name_regex_delete=.*\' --data \'keep_n=10\' --header \'PRIVATE-TOKEN: ${GitLabToken}\' ${ImageTagUrl}"
+                    //sh "curl --request DELETE --data \'name_regex_delete=.*\' --data \'keep_n=10\' --header \'PRIVATE-TOKEN: ${GitLabToken}\' ${ImageTagUrl}"
                 }
             }
         }	
