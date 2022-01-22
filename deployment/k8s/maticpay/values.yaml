@@ -5,7 +5,7 @@
 replicaCount: 1
 
 image:
-  repository: registry.gitlab.com/rayprosoft/turnkey-gaming-system/payment-maticpay
+  repository: harbor.rpgp.cc/tgs/payment-maticpay
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
   tag: "latest"
@@ -13,15 +13,11 @@ image:
 namespace: dev
 
 imagePullSecrets:
-  - name: registry-credentials
+  - name: secret-tgs-harbor
 nameOverride: "payment-maticpay"
 fullnameOverride: "payment-maticpay"
 
-connectionStrings:
-  tgs: Server=localhost;Database=tgs;User Id=tgs;Password=1qaz2wsx!@
-
 nats: nats://localhost:4222
-
 paymentApiUrl: https://mgp-pay.com:8443/
 callbackBaseUrl: https://dev.payment.tgsdev.gq/maticpay
 paymentServiceBaseUrl: http://payment-api
@@ -49,11 +45,11 @@ resources:
   # resources, such as Minikube. If you do want to specify resources, uncomment the following
   # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
   limits:
-    cpu: 400m
-    memory: 1Gi
+    cpu: 200m
+    memory: 400Mi
   requests:
-    cpu: 400m
-    memory: 1Gi
+    cpu: 200m
+    memory: 400Mi
 
 autoscaling:
   enabled: false

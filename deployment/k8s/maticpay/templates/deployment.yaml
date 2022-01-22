@@ -6,7 +6,9 @@ metadata:
   labels:
     {{- include "maticpay.labels" . | nindent 4 }}
 spec:
+  {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
+  {{- end }}
   selector:
     matchLabels:
       {{- include "maticpay.selectorLabels" . | nindent 6 }}
@@ -58,13 +60,20 @@ spec:
               name: appsettings
               readOnly: true
               subPath: appsettings.json
+          env:
+            - name: OTEL_SERVICE_NAME
+              value: payment-maticpay({{ .Values.namespace }})
+            - name: NODE_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.hostIP
           livenessProbe:
             httpGet:
-              path: /
+              path: /health
               port: http
           readinessProbe:
             httpGet:
-              path: /
+              path: /health
               port: http
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
