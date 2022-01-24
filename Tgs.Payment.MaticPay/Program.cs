@@ -80,7 +80,7 @@ builder.Services.AddOpenTelemetryTracing(builder =>
             builder
                 .AddFilter(new FileExtensionFilter("html", "ico", "png", "jpg"))
                 .AddFilter(new UrlPathFilter("/swagger"))
-                .AddFilter(new UrlPathFilter("/health"));
+                .AddFilter(new UrlPathFilter("/healthz"));
         })
         .AddOtlpExporter();
 });
@@ -102,7 +102,7 @@ app.UseEndpoints(endpoints =>
     });
 });
 
-app.MapHealthChecks("/health",
+app.MapHealthChecks("/healthz",
     new HealthCheckOptions
     {
         ResultStatusCodes = new Dictionary<HealthStatus, int>
