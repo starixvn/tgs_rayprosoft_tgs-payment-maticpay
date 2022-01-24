@@ -12,7 +12,6 @@ using OpenTelemetry.Exporter;
 using OpenTelemetry.Exporter.ProfileViewer.Filters;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
-using Prometheus;
 using Tgs.Payment.MaticPay;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -51,9 +50,7 @@ builder.Services.AddTransient(sp =>
     return options;
 });
 
-builder.Services
-    .AddHealthChecks()
-    .ForwardToPrometheus();
+builder.Services.AddHealthChecks();
 
 builder.Services
     .AddOptions<OtlpExporterOptions>()
@@ -96,10 +93,6 @@ app.UseRouting();
 app.UseEndpoints(endpoints =>
 {
     endpoints.MapControllers();
-    endpoints.MapGet("/", async context =>
-    {
-        await context.Response.WriteAsync("Hello World!");
-    });
 });
 
 app.MapHealthChecks("/healthz",
@@ -166,7 +159,6 @@ app.Use(async (context, next) =>
     await stream.ReadToEndAsync();
 });
 
-app.MapMetrics();
 app.MapProfileViewer();
 
 app.Run();
