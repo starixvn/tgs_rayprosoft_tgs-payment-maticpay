@@ -5,8 +5,7 @@ pipeline {
 
 	environment {
 		BuildConfiguration = "Debug"
-		ImageName = "registry.gitlab.com/rayprosoft/turnkey-gaming-system/payment-maticpay"		
-		ImageTagUrl = "https://gitlab.com/api/v4/projects/20478010/registry/repositories/2254533/tags"
+		ImageName = "harbor.rpgp.cc/tgs/payment-maticpay"
 	}
 	stages {
 		stage('Prepare'){
@@ -135,7 +134,7 @@ pipeline {
 			}
 		}
 
-		stage('Add Tag') {
+		stage('Add Tag on Prod') {
             when {
                 expression {
                     return env.kube_ns == 'prod';
@@ -147,15 +146,7 @@ pipeline {
                     sh "git push ${GIT_URL} ${TAG} HEAD:${GIT_BRANCH}"
                 }
             }
-        }
-
-		stage('Remove Image Tags') {					
-            steps {	
-			    withCredentials([string(credentialsId: "GitLabToken", variable: "GitLabToken")]) {					
-                    //sh "curl --request DELETE --data \'name_regex_delete=.*\' --data \'keep_n=10\' --header \'PRIVATE-TOKEN: ${GitLabToken}\' ${ImageTagUrl}"
-                }
-            }
-        }	
+        }		
 	}
 
 	post {
