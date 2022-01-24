@@ -71,7 +71,7 @@ spec:
             httpGet:
               path: /healthz
               port: http
-          readinessProbe:
+          startupProbe:
             httpGet:
               path: /healthz
               port: http
