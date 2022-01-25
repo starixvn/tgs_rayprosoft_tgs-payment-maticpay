@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ include "maticpay.fullname" . }}
-  namespace: {{ .Values.namespace }}
+  namespace: {{ .Release.Namespace }}
   labels:
     {{- include "maticpay.labels" . | nindent 4 }}
 spec:
@@ -26,25 +26,7 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       securityContext:
-        {{- toYaml .Values.podSecurityContext | nindent 8 }}
-      {{- if eq .Values.namespace "staging" }}
-      nodeSelector:
-        dedicated: nonprod
-      tolerations:
-      - effect: NoSchedule
-        key: dedicated
-        operator: Equal
-        value: nonprod
-      {{- end }}
-      {{- if eq .Values.namespace "prod" }}
-      nodeSelector:
-        dedicated: prod
-      tolerations:
-      - effect: NoSchedule
-        key: dedicated
-        operator: Equal
-        value: prod
-      {{- end }}
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}      
       containers:
         - name: {{ .Chart.Name }}
           securityContext:
@@ -62,7 +44,7 @@ spec:
               subPath: appsettings.json
           env:
             - name: OTEL_SERVICE_NAME
-              value: payment-maticpay({{ .Values.namespace }})
+              value: Payment-Maticpay({{ .Release.Namespace }})
             - name: NODE_IP
               valueFrom:
                 fieldRef:
