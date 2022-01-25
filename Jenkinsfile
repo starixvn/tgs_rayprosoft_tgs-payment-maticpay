@@ -119,7 +119,7 @@ pipeline {
                         sh '''
                             cat << EOF | yq e -P | helm template deployment/k8s/maticpay \
                                 -n ${kube_ns} \
-                                --set image.tag=${TAG} \                                
+                                --set image.tag=${TAG} \
                                 --set connectionStrings.tgs="${tgs_tgs_conn}" \
                                 --set paymentApiUrl="$tgs_paymentApiUrl_maticpay" \
                                 --set nats="$tgs_nats" \
@@ -133,7 +133,7 @@ pipeline {
                         sh '''
                             cat << EOF | yq e -P | helm template deployment/k8s/maticpay \
                                 -n ${kube_ns} \
-                                --set image.tag=${TAG} \                                
+                                --set image.tag=${TAG} \
                                 --set connectionStrings.tgs="${tgs_tgs_conn}" \
                                 --set paymentApiUrl="$tgs_paymentApiUrl_maticpay" \
                                 --set nats="$tgs_nats" \
