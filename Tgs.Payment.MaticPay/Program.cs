@@ -10,6 +10,7 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Options;
 using OpenTelemetry.Exporter;
 using OpenTelemetry.Exporter.ProfileViewer.Filters;
+using OpenTelemetry.Instrumentation.AspNetCore;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using Tgs.Payment.MaticPay;
@@ -80,6 +81,19 @@ builder.Services.AddOpenTelemetryTracing(builder =>
                 .AddFilter(new UrlPathFilter("/healthz"));
         })
         .AddOtlpExporter();
+});
+
+builder.Services.Configure<AspNetCoreInstrumentationOptions>(options =>
+{
+    options.Filter = httpContext =>
+    {
+        return !httpContext.Request.Path.HasValue
+            || !httpContext.Request.Path.StartsWithSegments("/swagger")
+            && !httpContext.Request.Path.StartsWithSegments("/healthz")
+            && !httpContext.Request.Path.StartsWithSegments("/profiler/")
+            && !new[] { "html", "ico", "png", "jpg" }.Any(
+                ext => httpContext.Request.Path.Value.EndsWith($".{ext}"));
+    };
 });
 
 builder.Services.AddProfileViewer();
