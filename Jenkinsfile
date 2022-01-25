@@ -18,14 +18,20 @@ pipeline {
                         case ['main', 'origin/main']:
                             env.kube_ns = "prod";
                             env.k8s_config = 'stag-k8s-config';
+                            env.node_selector = '{ "dedicated": "prod" }';
+                            env.dedicated = '{"effect":"NoSchedule","key": "dedicated", "operator": "Equal", "value": "prod"}';
                             break;
                         case ['release', 'origin/release']:
                             env.kube_ns = "staging";
                             env.k8s_config = 'stag-k8s-config';
+                            env.node_selector = '{ "dedicated": "nonprod" }';
+                            env.dedicated = '{"effect":"NoSchedule","key": "dedicated", "operator": "Equal", "value": "noprod"}';
                             break;
                         default:
                             env.kube_ns = "dev";
-                            env.k8s_config = 'k8s-kube-config' 
+                            env.k8s_config = 'k8s-kube-config';
+                            env.node_selector = '{}';
+                            env.dedicated = ''; 
                             break;
                     }
 				}
@@ -111,23 +117,32 @@ pipeline {
 				withKubeConfig([credentialsId: env.k8s_config]) {        
                     withCredentials([string(credentialsId: "tgs-${kube_ns}-connectionstring", variable: "tgs_tgs_conn")]) {
                         sh '''
-                            helm template deployment/k8s/maticpay \
-                                --set image.tag=${TAG} \
-                                --set namespace=$kube_ns \
-                                --set connectionStrings.tgs="${tgs_tgs_conn}" \
-                                --set paymentApiUrl="$tgs_paymentApiUrl_maticpay" \
-                                --set nats="$tgs_nats" \
-                                --set callbackBaseUrl="$tgs_paymentCallbackBaseUrl_maticpay"
-                        '''
-                        sh '''
-                            helm template deployment/k8s/maticpay \
-                                --set image.tag=${TAG} \
-                                --set namespace=$kube_ns \
+                            cat << EOF | yq e -P | helm template deployment/k8s/maticpay \
+                                -n ${kube_ns} \
+                                --set image.tag=${TAG} \                                
                                 --set connectionStrings.tgs="${tgs_tgs_conn}" \
                                 --set paymentApiUrl="$tgs_paymentApiUrl_maticpay" \
                                 --set nats="$tgs_nats" \
                                 --set callbackBaseUrl="$tgs_paymentCallbackBaseUrl_maticpay" \
-                            | kubectl -n $kube_ns apply -f -
+                                -f -
+                            {
+                                "nodeSelector": $node_selector,
+                                "tolerations": [$dedicated]
+                            }
+                        '''
+                        sh '''
+                            cat << EOF | yq e -P | helm template deployment/k8s/maticpay \
+                                -n ${kube_ns} \
+                                --set image.tag=${TAG} \                                
+                                --set connectionStrings.tgs="${tgs_tgs_conn}" \
+                                --set paymentApiUrl="$tgs_paymentApiUrl_maticpay" \
+                                --set nats="$tgs_nats" \
+                                --set callbackBaseUrl="$tgs_paymentCallbackBaseUrl_maticpay" \
+                            | kubectl -n ${kube_ns} apply -f -
+                            {
+                                "nodeSelector": $node_selector,
+                                "tolerations": [$dedicated]
+                            }
                         '''
                     }
                 }

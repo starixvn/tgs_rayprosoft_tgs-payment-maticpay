@@ -33,6 +33,13 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: OTEL_SERVICE_NAME
+              value: Payment-Maticpay({{ .Release.Namespace }})
+            - name: NODE_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.hostIP
           ports:
             - name: http
               containerPort: 80
@@ -42,13 +49,6 @@ spec:
               name: appsettings
               readOnly: true
               subPath: appsettings.json
-          env:
-            - name: OTEL_SERVICE_NAME
-              value: Payment-Maticpay({{ .Release.Namespace }})
-            - name: NODE_IP
-              valueFrom:
-                fieldRef:
-                  fieldPath: status.hostIP
           livenessProbe:
             httpGet:
               path: /healthz
