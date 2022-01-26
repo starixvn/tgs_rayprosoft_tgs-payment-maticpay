@@ -20,6 +20,7 @@ spec:
       {{- end }}
       labels:
         {{- include "maticpay.selectorLabels" . | nindent 8 }}
+        tgs.kind: payment
     spec:
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
