@@ -138,6 +138,7 @@ pipeline {
                                 --set paymentApiUrl="$tgs_paymentApiUrl_maticpay" \
                                 --set nats="$tgs_nats" \
                                 --set callbackBaseUrl="$tgs_paymentCallbackBaseUrl_maticpay" \
+                                -f - \
                             | kubectl -n ${kube_ns} apply -f -
                             {
                                 "nodeSelector": $node_selector,
