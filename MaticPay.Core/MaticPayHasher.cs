@@ -1,21 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Cryptography;
+﻿using System.Security.Cryptography;
 using System.Text;
 
 namespace Tgs.Payment.MaticPay
 {
     public class MaticPayHasher
     {
-        private readonly static MD5 _Md5;
+        private static readonly MD5 _Md5;
 
         static MaticPayHasher()
         {
             _Md5 = MD5.Create();
         }
 
-        public string ComputeHash(string apiKey, IDictionary<string, object> dict)
+        public static string ComputeHash(string apiKey, IDictionary<string, object> dict)
         {
             var content = string.Join(
                 "&",

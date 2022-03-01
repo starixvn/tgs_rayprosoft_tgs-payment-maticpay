@@ -1,7 +1,4 @@
-﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
-using Google.Protobuf;
+﻿using Google.Protobuf;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Tgs.MessageQueue;
@@ -32,9 +29,9 @@ namespace Tgs.Payment.MaticPay.MessageQueue
             _options = optionsAccessor.Value;
         }
 
-        public async ValueTask<byte[]> HandleAsync(byte[] data, CancellationToken cancellationToken = default)
+        public async ValueTask<ReadOnlyMemory<byte>> HandleAsync(ReadOnlyMemory<byte> data, CancellationToken cancellationToken = default)
         {
-            var request = WithdrawRequest.Parser.ParseFrom(data);
+            var request = WithdrawRequest.Parser.ParseFrom(data.Span);
             var settings = _maticPaySerializer.Deserialize<MaticPayWithdrawSettings>(request.ApplyInfo)!;
 
             var order = new WithdrawOrder
@@ -54,7 +51,7 @@ namespace Tgs.Payment.MaticPay.MessageQueue
             };
 
             var withdrawResponse = await _maticPayClient
-                .WithdrawAsync(settings.MerchantNo, settings.ApiKey, order)
+                .WithdrawAsync(settings.ApiKey, order)
                 .ConfigureAwait(false);
 
             if (withdrawResponse != null && withdrawResponse.Code == "0")
@@ -70,7 +67,7 @@ namespace Tgs.Payment.MaticPay.MessageQueue
                     OrderNo = settings.OrderNo.ToString()
                 };
                 var transactionQueryResponse = await _maticPayClient
-                    .TransactionQueryAsync(settings.MerchantNo, settings.ApiKey, transactionQueryOrder)
+                    .TransactionQueryAsync(settings.ApiKey, transactionQueryOrder)
                     .ConfigureAwait(false);
 
                 var thirdPartyOrderNo = "";

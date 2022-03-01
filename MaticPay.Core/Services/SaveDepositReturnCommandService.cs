@@ -1,8 +1,5 @@
-﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
-using Tgs.Payment.Clients;
-using TGS.ServiceUtility;
+﻿using Tgs.Payment.Clients;
+using Tgs.ServiceUtility;
 
 namespace Tgs.Payment.MaticPay.Services
 {

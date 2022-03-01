@@ -1,26 +1,11 @@
 {
-  "iisSettings": {
-    "windowsAuthentication": false,
-    "anonymousAuthentication": true,
-    "iisExpress": {
-      "applicationUrl": "http://localhost:56182",
-      "sslPort": 44384
-    }
-  },
   "profiles": {
-    "IIS Express": {
-      "commandName": "IISExpress",
-      "launchBrowser": true,
-      "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
-      }
-    },
     "Tgs.Payment.MaticPay": {
       "commandName": "Project",
       "launchBrowser": true,
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
-        "OTEL_SERVICE_NAME": "Payment-Maticpay(local)",
+        "OTEL_SERVICE_NAME": "Payment-MaticPay(local)",
         "NODE_IP": "192.168.50.112"
       },
       "dotnetRunMessages": true,
@@ -28,13 +13,12 @@
     },
     "Docker": {
       "commandName": "Docker",
-      "launchBrowser": true,
       "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}",
       "publishAllPorts": true,
       "useSSL": true,
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
-        "OTEL_SERVICE_NAME": "Payment-Maticpay(local)",
+        "OTEL_SERVICE_NAME": "Payment-MaticPay(local)",
         "NODE_IP": "192.168.50.112"
       }
     }
