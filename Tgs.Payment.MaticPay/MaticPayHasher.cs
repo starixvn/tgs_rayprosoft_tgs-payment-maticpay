@@ -1,14 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Cryptography;
+﻿using System.Security.Cryptography;
 using System.Text;
 
 namespace Tgs.Payment.MaticPay
 {
     public class MaticPayHasher
     {
-        private readonly static MD5 _Md5;
+        private static readonly MD5 _Md5;
 
         static MaticPayHasher()
         {
@@ -26,10 +23,7 @@ namespace Tgs.Payment.MaticPay
                 "&",
                 dict.Select(p =>
                 {
-                    if (p.Key == "sign")
-                        return "";
-                    else
-                        return $"{p.Key}={p.Value}";
+                    return p.Key == "sign" ? "" : $"{p.Key}={p.Value}";
                 }));
 
             var plainText = $"{content}";

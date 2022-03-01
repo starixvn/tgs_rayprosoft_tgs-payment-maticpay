@@ -51,7 +51,7 @@ namespace Tgs.Payment.MaticPay.MessageQueue
             };
 
             var withdrawResponse = await _maticPayClient
-                .WithdrawAsync(settings.MerchantNo, settings.ApiKey, order)
+                .WithdrawAsync(settings.ApiKey, order)
                 .ConfigureAwait(false);
 
             if (withdrawResponse != null && withdrawResponse.Code == "0")
@@ -67,7 +67,7 @@ namespace Tgs.Payment.MaticPay.MessageQueue
                     OrderNo = settings.OrderNo.ToString()
                 };
                 var transactionQueryResponse = await _maticPayClient
-                    .TransactionQueryAsync(settings.MerchantNo, settings.ApiKey, transactionQueryOrder)
+                    .TransactionQueryAsync(settings.ApiKey, transactionQueryOrder)
                     .ConfigureAwait(false);
 
                 var thirdPartyOrderNo = "";

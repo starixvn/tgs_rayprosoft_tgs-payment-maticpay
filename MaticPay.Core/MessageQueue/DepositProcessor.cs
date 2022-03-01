@@ -40,7 +40,7 @@ namespace Tgs.Payment.MaticPay.MessageQueue
             };
 
             var depositResponse = await _maticPayClient
-                .DepositAsync(settings.MerchantNo, settings.ApiKey, order)
+                .DepositAsync(settings.ApiKey, order)
                 .ConfigureAwait(false);
 
             if (depositResponse != null && depositResponse.Code == "0")

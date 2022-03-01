@@ -3,7 +3,7 @@ using Microsoft.Extensions.Options;
 
 namespace Tgs.Payment.MaticPay
 {
-    public class MaticPayClient
+    internal class MaticPayClient
     {
         private readonly HttpClient _httpClient;
         private readonly JsonSerializerOptions? _jsonSerializerOptions;
@@ -16,7 +16,7 @@ namespace Tgs.Payment.MaticPay
             _jsonSerializerOptions = optionsAccessor.Value.SystemSerializerOptions;
         }
 
-        public async ValueTask<MaticPayDepositResponse?> DepositAsync(string merchantNo, string apiKey, DepositOrder order)
+        public async ValueTask<MaticPayDepositResponse?> DepositAsync(string apiKey, DepositOrder order)
         {
             var orderJson = JsonSerializer.Serialize(order, _jsonSerializerOptions);
             var orderDict = JsonSerializer
@@ -45,7 +45,7 @@ namespace Tgs.Payment.MaticPay
             return apiResponseData;
         }
 
-        public async ValueTask<MaticPayWithdrawResponse?> WithdrawAsync(string merchantNo, string apiKey, WithdrawOrder order)
+        public async ValueTask<MaticPayWithdrawResponse?> WithdrawAsync(string apiKey, WithdrawOrder order)
         {
             var orderJson = JsonSerializer.Serialize(order, _jsonSerializerOptions);
             var orderDict = JsonSerializer
@@ -74,7 +74,7 @@ namespace Tgs.Payment.MaticPay
             return apiResponseData;
         }
 
-        public async ValueTask<MaticPayTransactionQueryResponse?> TransactionQueryAsync(string merchantNo, string apiKey, TransactionQueryOrder order)
+        public async ValueTask<MaticPayTransactionQueryResponse?> TransactionQueryAsync(string apiKey, TransactionQueryOrder order)
         {
             var orderJson = JsonSerializer.Serialize(order, _jsonSerializerOptions);
             var orderDict = JsonSerializer
