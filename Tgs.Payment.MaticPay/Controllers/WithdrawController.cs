@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text.Json;
-using System.Threading.Tasks;
+﻿using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Tgs.Payment.Clients;
 using Tgs.Payment.MaticPay.Services;
 using Tgs.Payment.MaticPay.ViewModels;
-using TGS.ServiceUtility;
+using Tgs.ServiceUtility;
 
 namespace Tgs.Payment.MaticPay.Controllers
 {
@@ -38,7 +34,7 @@ namespace Tgs.Payment.MaticPay.Controllers
             _logger.LogInformation(json);
 
             var dict = JsonSerializer.Deserialize<Dictionary<string, object>>(json)!;
-            dict.Remove("sign");
+            _ = dict.Remove("sign");
 
             var jsonSerializerOptions = jsonOptionsAccessor.Value.JsonSerializerOptions;
 

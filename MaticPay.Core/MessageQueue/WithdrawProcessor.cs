@@ -1,7 +1,4 @@
-﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
-using Google.Protobuf;
+﻿using Google.Protobuf;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Tgs.MessageQueue;
@@ -32,9 +29,9 @@ namespace Tgs.Payment.MaticPay.MessageQueue
             _options = optionsAccessor.Value;
         }
 
-        public async ValueTask<byte[]> HandleAsync(byte[] data, CancellationToken cancellationToken = default)
+        public async ValueTask<ReadOnlyMemory<byte>> HandleAsync(ReadOnlyMemory<byte> data, CancellationToken cancellationToken = default)
         {
-            var request = WithdrawRequest.Parser.ParseFrom(data);
+            var request = WithdrawRequest.Parser.ParseFrom(data.Span);
             var settings = _maticPaySerializer.Deserialize<MaticPayWithdrawSettings>(request.ApplyInfo)!;
 
             var order = new WithdrawOrder

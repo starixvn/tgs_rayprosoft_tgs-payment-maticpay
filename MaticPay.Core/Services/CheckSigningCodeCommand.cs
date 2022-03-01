@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-
-namespace Tgs.Payment.MaticPay.Services
+﻿namespace Tgs.Payment.MaticPay.Services
 {
     public record CheckSigningCodeCommand(
         IDictionary<string, object> Data,

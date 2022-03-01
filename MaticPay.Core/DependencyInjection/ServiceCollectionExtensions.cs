@@ -1,5 +1,4 @@
-﻿using System;
-using System.Reflection;
+﻿using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.Extensions.Options;
@@ -10,8 +9,12 @@ namespace Microsoft.Extensions.DependencyInjection
 {
     public static class ServiceCollectionExtensions
     {
-        public static IServiceCollection AddMaticPay(this IServiceCollection services, Action<MaticPayOptions, IServiceProvider> configure)
+        public static IServiceCollection AddMaticPay(
+            this IServiceCollection services,
+            Action<MaticPayOptions,
+            IServiceProvider> configure)
             => services
+                .RegisterAllServiceUtilityTypes(Assembly.GetExecutingAssembly(), ServiceLifetime.Transient)
                 .AddOptions<MaticPayOptions>()
                 .Configure(configure)
                 .Services
@@ -23,6 +26,9 @@ namespace Microsoft.Extensions.DependencyInjection
                     httpClient.BaseAddress = options.PaymentApiUrl;
                 })
                 .Services
+                .AddSingleton<MaticPaySerializer>()
+                .AddSingleton<MaticPayHasher>()
+                .AddPaymentClient()
                 .AddPaymentServiceClient((options, sp) =>
                 {
                     var maticPayOptions = sp.GetRequiredService<IOptions<MaticPayOptions>>().Value;
@@ -38,12 +44,10 @@ namespace Microsoft.Extensions.DependencyInjection
                         }
                     };
                 })
-                .RegisterAllServiceUtilityTypes(Assembly.GetExecutingAssembly(), ServiceLifetime.Transient)
-                .AddTransient<MaticPayHasher>()
-                .AddSingleton<MaticPaySerializer>()
+                .AddMessageQueue()
                 .AddNatsMessageQueue(config =>
                 {
-                    config
+                    _ = config
                         .ConfigQueueOptions((options, sp) =>
                         {
                             var maticPayOptions = sp.GetRequiredService<IOptions<MaticPayOptions>>().Value;
@@ -53,6 +57,8 @@ namespace Microsoft.Extensions.DependencyInjection
                         .AddProcessor<DepositProcessor>("tgs.payment.maticpay.deposit", "tgs.payment.maticpay.deposit")
                         .AddProcessor<WithdrawProcessor>("tgs.payment.maticpay.withdraw", "tgs.payment.maticpay.withdraw");
                 })
-                .AddPaymentClient();
+                .ClearAllExchanges()
+                .AddNatsGlobPatternExchange("*")
+                .Services;
     }
 }

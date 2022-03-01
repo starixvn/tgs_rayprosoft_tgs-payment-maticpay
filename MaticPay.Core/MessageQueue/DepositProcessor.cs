@@ -1,7 +1,4 @@
-﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
-using Google.Protobuf;
+﻿using Google.Protobuf;
 using Microsoft.Extensions.Options;
 using Tgs.MessageQueue;
 using Tgs.Payment.Protos;
@@ -24,9 +21,9 @@ namespace Tgs.Payment.MaticPay.MessageQueue
             _options = optionsAccessor.Value;
         }
 
-        public async ValueTask<byte[]> HandleAsync(byte[] data, CancellationToken cancellationToken = default)
+        public async ValueTask<ReadOnlyMemory<byte>> HandleAsync(ReadOnlyMemory<byte> data, CancellationToken cancellationToken = default)
         {
-            var request = DepositRequest.Parser.ParseFrom(data);
+            var request = DepositRequest.Parser.ParseFrom(data.Span);
             var settings = _maticPaySerializer.Deserialize<MaticPayDepositSettings>(request.ApplyInfo)!;
 
             var order = new DepositOrder
@@ -62,10 +59,7 @@ namespace Tgs.Payment.MaticPay.MessageQueue
                 var errorMsg = string.Empty;
                 if (depositResponse != null)
                 {
-                    if (depositResponse.Msg != null)
-                        errorMsg = depositResponse.Msg;
-                    else
-                        errorMsg = "Request Fail";
+                    errorMsg = depositResponse.Msg ?? "Request Fail";
                 }
 
                 var response = new MaticPayDepositFailResponse

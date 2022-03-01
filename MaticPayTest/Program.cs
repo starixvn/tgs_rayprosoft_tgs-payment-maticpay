@@ -1,32 +1,21 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using MaticPayTest;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Tgs.Payment.MaticPay;
 
-namespace MaticPayTest
-{
-    internal class Program
-    {
-        public static IHostBuilder CreateHostBuilder(string[] args) =>
-           Host.CreateDefaultBuilder(args)
-               .ConfigureServices(services =>
-               {
-                   services.AddNatsMessageQueue(config =>
-                   {
-                       config.ConfigQueueOptions((options, ap) =>
-                       {
-                           options.Url = "nats://192.168.50.44:4222";
-                           //options.Url = "nats://localhost:4222";
-                       });
-                   });
-                   services.AddPaymentClient();
-                   services
-                       .AddSingleton<MaticPaySerializer>();
-                   services.AddHostedService<Demo>();
-               });
+CreateHostBuilder(args).Build().Run();
 
-        private static void Main(string[] args)
+static IHostBuilder CreateHostBuilder(string[] args)
+    => Host.CreateDefaultBuilder(args)
+        .ConfigureServices(services =>
         {
-            CreateHostBuilder(args).Build().Run();
-        }
-    }
-}
+            _ = services
+            .AddMessageQueue()
+            .AddNatsMessageQueue(_ => { })
+            .AddNatsGlobPatternExchange("*");
+
+            _ = services
+            .AddPaymentClient()
+            .AddSingleton<MaticPaySerializer>()
+            .AddHostedService<Demo>();
+        });
