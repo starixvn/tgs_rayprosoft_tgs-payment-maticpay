@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using NUnit.Framework;
 
 namespace Tgs.Payment.MaticPay.Tests
@@ -28,9 +27,8 @@ namespace Tgs.Payment.MaticPay.Tests
                 { "merchantNo", merchantNo}
             };
 
-            var hasher = new MaticPayHasher();
             var apiKey = "2cf6782df6d7478f872954ef8ff45a16";
-            var actual = hasher.ComputeHash(apiKey, dict);
+            var actual = MaticPayHasher.ComputeHash(apiKey, dict);
             var expected = "c9937998ef046127f762a002a6e8be8a";
             Assert.AreEqual(expected, actual);
         }
@@ -60,10 +58,8 @@ namespace Tgs.Payment.MaticPay.Tests
                 { "notes", notes}
             };
 
-            var hasher = new MaticPayHasher();
-
             var apiKey = "919fc7c0c8494839ba26099f921ac1f4";
-            var actual = hasher.ComputeHash(apiKey, dict);
+            var actual = MaticPayHasher.ComputeHash(apiKey, dict);
             var expected = sign;
 
             Assert.AreEqual(expected, actual);
@@ -94,10 +90,8 @@ namespace Tgs.Payment.MaticPay.Tests
                 { "notes", notes}
             };
 
-            var hasher = new MaticPayHasher();
-
             var apiKey = "68199f7df5e142c69ae2516b75c176d5";
-            var actual = hasher.ComputeHash(apiKey, dict);
+            var actual = MaticPayHasher.ComputeHash(apiKey, dict);
             var expected = sign;
 
             Assert.AreEqual(expected, actual);
