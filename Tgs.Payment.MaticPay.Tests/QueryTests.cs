@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
-using System.Threading.Tasks;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 
 namespace Tgs.Payment.MaticPay.Tests
 {
@@ -30,7 +25,7 @@ namespace Tgs.Payment.MaticPay.Tests
             };
             var hasher = new MaticPayHasher();
             var apiKey = "68199f7df5e142c69ae2516b75c176d5";
-            var sign = hasher.ComputeHash(apiKey, dict);
+            var sign = MaticPayHasher.ComputeHash(apiKey, dict);
 
             dict["sign"] = sign;
 
@@ -50,7 +45,7 @@ namespace Tgs.Payment.MaticPay.Tests
 
             Console.WriteLine($"Order Body: {bodyJson}");
 
-            response.EnsureSuccessStatusCode();
+            _ = response.EnsureSuccessStatusCode();
         }
     }
 }

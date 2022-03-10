@@ -1,30 +1,107 @@
-﻿using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
+﻿using System.Text.Json;
+using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.HttpLogging;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
+using OpenTelemetry.Exporter;
+using OpenTelemetry.Instrumentation.AspNetCore;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
+using Tgs.Payment.MaticPay;
 
-namespace Tgs.Payment.MaticPay
-{
-    public class Program
+var builder = WebApplication.CreateBuilder(args);
+
+builder.Configuration.AddJsonFile("/config/appsettings.json", true);
+
+builder.Services
+    .AddHttpLogging(logging =>
     {
-        public static IHostBuilder CreateHostBuilder(string[] args) =>
-            Host.CreateDefaultBuilder(args)
-                .ConfigureAppConfiguration(builder =>
-                {
-                    builder.AddJsonFile("/config/appsettings.json", true);
-                })
-                .ConfigureWebHostDefaults(webBuilder =>
-                {
-                    webBuilder.UseStartup<Startup>();
-                })
-                .ConfigureLogging((context, builder) =>
-                {
-                    builder.AddTgsLog();
-                });
+        logging.LoggingFields = HttpLoggingFields.All;
+        logging.MediaTypeOptions.AddText("application/x-www-form-urlencoded");
+        logging.MediaTypeOptions.AddText("text/html");
+    });
 
-        public static void Main(string[] args)
-        {
-            CreateHostBuilder(args).Build().Run();
-        }
-    }
-}
+builder.Services
+    .AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault;
+        options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+    });
+
+builder.Services.AddHealthChecks();
+
+builder.Services
+    .AddOptions<OtlpExporterOptions>()
+    .Configure<IConfiguration>((options, conifg) =>
+    {
+        var nodeIp = conifg.GetValue<string>("NODE_IP");
+
+        if (!string.IsNullOrWhiteSpace(nodeIp))
+            options.Endpoint = new Uri($"http://{nodeIp}:4317");
+
+        conifg.GetSection("Opentelemetry:Tracing").Bind(options);
+    });
+
+builder.Services.AddOpenTelemetryTracing(builder => builder
+        .SetResourceBuilder(ResourceBuilder.CreateDefault()
+        .AddEnvironmentVariableDetector())
+        .AddSource("Tgs.*")
+        .AddAspNetCoreInstrumentation()
+        .AddHttpClientInstrumentation()
+        .AddProfileViewExporter()
+        .AddOtlpExporter());
+
+builder.Services.Configure<AspNetCoreInstrumentationOptions>(options =>
+{
+    options.Filter = httpContext =>
+    {
+        return !httpContext.Request.Path.HasValue
+            || !httpContext.Request.Path.StartsWithSegments("/swagger")
+            && !httpContext.Request.Path.StartsWithSegments("/healthz")
+            && !httpContext.Request.Path.StartsWithSegments("/profiler/")
+            && !new[] { "html", "ico", "png", "jpg" }.Any(
+                ext => httpContext.Request.Path.Value.EndsWith($".{ext}"));
+    };
+});
+
+builder.Services.AddProfileViewer();
+
+builder.Services
+    .AddMaticPay((options, sp) =>
+    {
+        var config = sp.GetRequiredService<IConfiguration>();
+
+        config.GetSection("MaticPay").Bind(options);
+    })
+    .AddSingleton<MaticPaySerializer>();
+
+builder.Services.AddTransient(sp =>
+{
+    var options = sp.GetRequiredService<IOptions<JsonOptions>>().Value.JsonSerializerOptions;
+
+    return options;
+});
+
+var app = builder.Build();
+
+app.UseHttpLogging();
+
+app.UseRouting();
+
+app.MapControllers();
+
+app.MapHealthChecks("/healthz");
+
+app.Use(async (context, next) =>
+{
+    await next();
+
+    using var stream = new StreamReader(context.Request.Body);
+
+    _ = await stream.ReadToEndAsync();
+});
+
+app.MapProfileViewer();
+
+app.Run();

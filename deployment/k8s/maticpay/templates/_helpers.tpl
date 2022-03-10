@@ -35,6 +35,7 @@ Common labels
 */}}
 {{- define "maticpay.labels" -}}
 {{ include "maticpay.selectorLabels" . }}
+tgs.kind: payment
 {{- end }}
 
 {{/*
