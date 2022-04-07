@@ -81,7 +81,7 @@ pipeline {
 
 			steps {
 				sh 'dotnet pack -c $BuildConfiguration "Tgs.Payment.MaticPay.Client/Tgs.Payment.MaticPay.Client.csproj" --no-build'
-				sh 'dotnet nuget push "Tgs.Payment.MaticPay.Client/bin/$BuildConfiguration/*.nupkg" --source "raypro" --skip-duplicate'
+				sh 'dotnet nuget push "Tgs.Payment.MaticPay.Client/bin/$BuildConfiguration/*.nupkg" -s "raypro-baget" -k admin --skip-duplicate'
 			}
 		}
 
