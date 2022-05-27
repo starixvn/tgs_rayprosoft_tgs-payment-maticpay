@@ -27,6 +27,7 @@ namespace Tgs.Payment.MaticPay.Controllers
             [FromServices] IGetService<GetWithdrawFormQuery, WithdrawFormInfo?> getWithdrawFormService,
             [FromServices] ICommandService<CheckSigningCodeCommand> checkSigningCodeService,
             [FromServices] ICommandService<SaveWithdrawReturnCommand> saveReturnService,
+            [FromServices] IPaymentClient paymentClient,
             [FromBody] Dictionary<string, object> response)
         {
             var json = JsonSerializer.Serialize(response);
@@ -72,27 +73,28 @@ namespace Tgs.Payment.MaticPay.Controllers
                     Sign = withdrawResponse.Sign
                 };
 
-                if (withdrawResponse.Status == "1")
+                if (withdrawResponse.Status == "1" && withdrawForm.Status == PaymentFlowState.Approved)
                 {
-                    var formStatus = withdrawForm.Status;
-                    if (withdrawForm.Status == PaymentFlowState.Approved)
-                        formStatus = PaymentFlowState.Paid;
-
                     var saveWithdrawCommand = new SaveWithdrawReturnCommand(
                                 withdrawForm.Id,
-                                formStatus,
                                 returnData,
                                 returnData.BizAmount);
 
                     await saveReturnService
                         .ExecuteAsync(saveWithdrawCommand)
                         .ConfigureAwait(false);
+
+                    await paymentClient
+                        .PaidWithdrawAsync(
+                            withdrawForm.Id,
+                            withdrawForm.BrandId,
+                            HttpContext.RequestAborted)
+                        .ConfigureAwait(false);
                 }
                 else
                 {
                     var saveWithdrawCommand = new SaveWithdrawReturnCommand(
                         withdrawForm.Id,
-                        withdrawForm.Status,
                         returnData,
                         null);
 
