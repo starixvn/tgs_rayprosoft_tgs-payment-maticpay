@@ -26,7 +26,7 @@ namespace Tgs.Payment.MaticPay.Services
             await _paymentServiceClient
                 .SubmitWithdrawFormStatusAsync(
                     formData.Id,
-                    command.State,
+                    null,
                     _maticPaySerializer.Serialize(command.WithdrawReturn),
                     command.ActualAmount)
                 .ConfigureAwait(false);
