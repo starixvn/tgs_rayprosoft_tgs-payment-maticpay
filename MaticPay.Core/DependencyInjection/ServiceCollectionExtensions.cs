@@ -1,6 +1,4 @@
 ﻿using System.Reflection;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using Microsoft.Extensions.Options;
 using Tgs.Payment.MaticPay;
 using Tgs.Payment.MaticPay.MessageQueue;
@@ -34,15 +32,6 @@ namespace Microsoft.Extensions.DependencyInjection
                     var maticPayOptions = sp.GetRequiredService<IOptions<MaticPayOptions>>().Value;
 
                     options.PaymentServiceBaseUrl = maticPayOptions.PaymentServiceBaseUrl;
-
-                    options.JsonSerializerOptions = new JsonSerializerOptions
-                    {
-                        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                        Converters =
-                        {
-                            new JsonStringEnumConverter()
-                        }
-                    };
                 })
                 .AddMessageQueue()
                 .AddNatsMessageQueue(config =>
