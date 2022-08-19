@@ -6,7 +6,7 @@ pipeline {
 
 	environment {
 		BuildConfiguration = "Debug"
-		ImageName = "harbor.rpgp.cc/tgs/payment-maticpay"
+		ImageName = "pgtgs/payment-maticpay"
 	}
 	stages {
 		stage('Prepare'){
